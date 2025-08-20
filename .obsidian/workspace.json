@@ -1,0 +1,199 @@
+{
+  "main": {
+    "id": "917a3a628ed261e8",
+    "type": "split",
+    "children": [
+      {
+        "id": "b20c9b58fbd6500d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a2732a542d30a128",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "index.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "index"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "21d4fdd2d184e9df",
+    "type": "split",
+    "children": [
+      {
+        "id": "5f781c440625c2dc",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8d79b0c324111b6d",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "7ed79b4477435c69",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "8a8a3236087cb6a4",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "0577f9c988b59db7",
+    "type": "split",
+    "children": [
+      {
+        "id": "413ef3db06e3bb11",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6ad33efb7d048dab",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Notes/Web Tech/SOAP deep‑dive (when you must use it).md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for SOAP deep‑dive (when you must use it)"
+            }
+          },
+          {
+            "id": "136c3f3e1a527aeb",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "f4d347b646f9c39d",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "91ac36c46706b582",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "index.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of index"
+            }
+          }
+        ],
+        "currentTab": 3
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false,
+      "cursor-bridge:Open in Cursor": false
+    }
+  },
+  "active": "a2732a542d30a128",
+  "lastOpenFiles": [
+    "Calendar/2025/July/07-07-2025.md",
+    "Calendar/2025/July/06-07-2025.md",
+    "Calendar/2025/July/05-07-2025.md",
+    "Calendar/2025/July/04-07-2025.md",
+    "Calendar/2025/July/03-07-2025.md",
+    "Calendar/2025/August/21-08-2025.md",
+    "Calendar/2025/August/20-08-2025.md",
+    "Senior Backend Engineer Study Guid.md",
+    "Notes/Web Tech/SOAP deep‑dive (when you must use it).md",
+    "Notes/Web Tech/Web Tech -  How the Web Works (from DNS to your API).md",
+    "Notes/Programming Languages/What to use where.md",
+    "Notes/Programming Languages/Languages/Python.md",
+    "Notes/Untitled/Untitled",
+    "Notes/Programming Languages",
+    "Notes/Programming Languages/Languages/Other PL.md",
+    "Notes/Programming Languages/Languages/C Sharp (.NET).md",
+    "Notes/Programming Languages/Languages",
+    "Notes/Programming Languages/Languages/Kotlin or Swift.md",
+    "Notes/Programming Languages/Languages/C++.md",
+    "Notes/Programming Languages/Languages/Rust.md",
+    "Notes/Programming Languages/Languages/Java.md",
+    "Notes/Programming Languages/Languages/Go.md",
+    "Notes/Programming Languages/Languages/JavaScript or TypeScript (Node and browser).md",
+    "index.md"
+  ]
+}
