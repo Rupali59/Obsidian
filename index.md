@@ -53,7 +53,7 @@ JavaScript               1 hr 31 mins        ████████░░░�
 JSON                     40 mins             ████░░░░░░░░░░░░░░░░░░░░░   15.03 %
 Python                   40 mins             ████░░░░░░░░░░░░░░░░░░░░░   14.83 %
 EJS                      38 mins             ████░░░░░░░░░░░░░░░░░░░░░   14.27 %
-Markdown                 23 mins             ██░░░░░░░░░░░░░░░░░░░░░░░   08.60 %
+Markdown                 23 mins             ██░░░░░░░░░░░░░░░░░░░░░   08.60 %
 
 🔥 Editors:
 VS Code                  4 hrs 32 mins       █████████████████████████   100.00 %
@@ -61,7 +61,7 @@ VS Code                  4 hrs 32 mins       ███████████�
 🐱‍💻 Projects:
 crm                      2 hrs 46 mins       ███████████████░░░░░░░░░░   60.99 %
 ProgramSnippets          1 hr 23 mins        ████████░░░░░░░░░░░░░░░░░   30.56 %
-quartz                   22 mins             ██░░░░░░░░░░░░░░░░░░░░░░░   08.44 %
+quartz                   22 mins             ██░░░░░░░░░░░░░░░░░░░░░   08.44 %
 
 💻 Operating System:
 Windows                  4 hrs 32 mins       █████████████████████████   100.00 %
@@ -98,7 +98,35 @@ I'm a passionate **Full-Stack Developer** and **Machine Learning Enthusiast** wi
 
 - 📧 **Email:** [rupalibhatnagar0509@gmail.com](mailto:rupalibhatnagar0509@gmail.com)
 - 💼 **LinkedIn:** [Rupali Bhatnagar](https://linkedin.com/in/rupali-bhatnagar-b4864957)
-- 🐦 **Twitter:** [@rupali_0509](https://twitter.com/rupali_0509)
+
+## 📚 Knowledge Base & Notes
+
+I maintain a comprehensive knowledge base covering various aspects of software development, system design, and personal growth. This repository serves as both my learning journal and reference library.
+
+### 🗂️ **What's Inside**
+
+- **[📚 Notes Hub](Notes/Notes.md)** - Complete knowledge base navigation
+- **[📅 Calendar](Calendar/)** - Daily notes and calendar organization
+- **[🔧 Scripts](Scripts/)** - Automation and utility scripts
+
+### 🎯 **Key Learning Areas**
+
+- **Backend Engineering**: Complete study guide for senior-level development
+- **Programming Languages**: Comprehensive comparisons and usage guidelines
+- **System Architecture**: Web technologies, authentication, and design patterns
+- **Business Systems**: CRM architecture and business process documentation
+- **Personal Development**: Philosophy and life insights
+
+### 🔍 **How to Navigate**
+
+1. **Start with [Notes Hub](Notes/Notes.md)** for an overview of all content
+2. **Browse by topic** using the organized categories
+3. **Follow internal links** to discover related concepts
+4. **Use Obsidian's graph view** to see knowledge connections
+
+---
+
+*This repository is my digital brain - a place where I document, learn, and grow. Feel free to explore and learn alongside me!*
 
 ## 🚀 Skills & Technologies
 

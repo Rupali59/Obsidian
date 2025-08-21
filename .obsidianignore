@@ -1,0 +1,50 @@
+# Obsidian Ignore File
+# This file tells Obsidian which files and folders to ignore
+
+# Scripts folder - exclude from Obsidian completely
+Scripts/
+Scripts/**
+**/Scripts/
+**/Scripts/**
+
+# Script file extensions
+*.ps1
+*.py
+*.js
+*.sh
+*.bat
+*.cmd
+*.exe
+*.msi
+
+# Development and build files
+node_modules/
+dist/
+build/
+*.log
+*.tmp
+*.temp
+
+# Git and version control
+.git/
+.gitignore
+.gitattributes
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary and cache files
+*.cache
+*.tmp
+*.temp
+temp/
+cache/

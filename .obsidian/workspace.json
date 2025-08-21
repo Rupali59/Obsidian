@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "b20c9b58fbd6500d",
+        "id": "d56c2b755a7d97fa",
         "type": "tabs",
         "children": [
           {
-            "id": "a2732a542d30a128",
+            "id": "98fc323482f782b2",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "index.md",
-                "mode": "preview",
-                "source": true
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "index"
+              "title": "New tab"
             }
           }
         ]
@@ -141,13 +137,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "index.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of index"
+              "title": "Outline"
             }
           }
         ],
@@ -169,31 +164,43 @@
       "cursor-bridge:Open in Cursor": false
     }
   },
-  "active": "a2732a542d30a128",
+  "active": "98fc323482f782b2",
   "lastOpenFiles": [
+    "Calendar/2025/August/21-08-2025.md",
+    "Pasted image 20250821225806.png",
+    "Calendar/2025/August/20-08-2025.md",
+    "Calendar/2025/August/19-08-2025.md",
+    "Calendar/2025/August/18-08-2025.md",
+    "Notes/Senior Backend Engineer Study Guid.md",
+    "Notes/Web Tech/SOAP deep‑dive (when you must use it).md",
+    "Notes/Web Tech/Web Tech.md",
+    "Notes/Web Tech/Web Tech -  How the Web Works (from DNS to your API).md",
+    "Notes/Web Tech/README.md",
+    "Notes/Programming Languages/Programming Languages.md",
+    "Notes/Notes.md",
+    "Scripts/README.md",
+    "Notes/Philosophy/README.md",
+    "Notes/Javascript/README.md",
+    "Notes/Programming Languages/README.md",
+    "Notes/README.md",
+    "Scripts/utilities/mobile_sync_vault.ps1",
+    "Scripts/utilities/sync_vault.bat",
+    "Scripts/utilities/auto_sync_vault.ps1",
+    "Scripts/utilities/cleanup_daily_notes.ps1",
+    "Scripts/utilities/backup_obsidian_vault.bat",
+    "Scripts/utilities/script_manager.ps1",
+    "Scripts/automation/sync_quartz_to_obsidian.py",
+    "Scripts/calendar_scripts/update_github_activity.ps1",
+    "index.md",
     "Calendar/2025/July/07-07-2025.md",
     "Calendar/2025/July/06-07-2025.md",
     "Calendar/2025/July/05-07-2025.md",
     "Calendar/2025/July/04-07-2025.md",
     "Calendar/2025/July/03-07-2025.md",
-    "Calendar/2025/August/21-08-2025.md",
-    "Calendar/2025/August/20-08-2025.md",
-    "Senior Backend Engineer Study Guid.md",
-    "Notes/Web Tech/SOAP deep‑dive (when you must use it).md",
-    "Notes/Web Tech/Web Tech -  How the Web Works (from DNS to your API).md",
     "Notes/Programming Languages/What to use where.md",
     "Notes/Programming Languages/Languages/Python.md",
     "Notes/Untitled/Untitled",
     "Notes/Programming Languages",
-    "Notes/Programming Languages/Languages/Other PL.md",
-    "Notes/Programming Languages/Languages/C Sharp (.NET).md",
-    "Notes/Programming Languages/Languages",
-    "Notes/Programming Languages/Languages/Kotlin or Swift.md",
-    "Notes/Programming Languages/Languages/C++.md",
-    "Notes/Programming Languages/Languages/Rust.md",
-    "Notes/Programming Languages/Languages/Java.md",
-    "Notes/Programming Languages/Languages/Go.md",
-    "Notes/Programming Languages/Languages/JavaScript or TypeScript (Node and browser).md",
-    "index.md"
+    "Notes/Programming Languages/Languages/Other PL.md"
   ]
 }
