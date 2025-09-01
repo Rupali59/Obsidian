@@ -1,0 +1,21 @@
+name: Trigger Quartz Sync
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'Calendar/**'
+      - 'Notes/**'
+      - 'Vault.md'
+      - 'index.md'
+
+jobs:
+  notify-quartz:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Quartz Repository Dispatch
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.QUARTZ_REPO_TOKEN }}
+          repository: ${{ secrets.QUARTZ_REPO }}
+          event-type: content-updated
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
