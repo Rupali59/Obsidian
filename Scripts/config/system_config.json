@@ -1,0 +1,49 @@
+{
+  "system": {
+    "name": "GitHub Metrics System",
+    "version": "2.0.0",
+    "description": "Modular GitHub metrics capture system with parallel processing"
+  },
+  "github": {
+    "api_base": "https://api.github.com",
+    "rate_limit_delay": 0.1,
+    "max_workers": 5,
+    "timeout": 30
+  },
+  "processing": {
+    "parallel_enabled": true,
+    "batch_size": 12,
+    "max_concurrent_dates": 3,
+    "incremental_writing": true,
+    "backup_enabled": true
+  },
+  "calendar": {
+    "date_format": "%d-%m-%Y",
+    "preserve_existing_content": true,
+    "auto_create_directories": true
+  },
+  "logging": {
+    "level": "INFO",
+    "file_rotation": true,
+    "max_log_size": "10MB",
+    "backup_count": 5
+  },
+  "modules": {
+    "setup": {
+      "enabled": true,
+      "auto_configure": true,
+      "validate_dependencies": true
+    },
+    "data": {
+      "enabled": true,
+      "use_optimized_fetcher": true,
+      "cache_enabled": false
+    },
+    "cleanup": {
+      "enabled": true,
+      "auto_cleanup_logs": true,
+      "auto_cleanup_backups": true,
+      "retention_days": 7
+    }
+  }
+}

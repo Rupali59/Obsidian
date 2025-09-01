@@ -1,0 +1,79 @@
+{
+  "operations": {
+    "setup": {
+      "name": "System Setup",
+      "description": "Initialize and configure the GitHub metrics system",
+      "module": "setup",
+      "config": {
+        "validate_github_token": true,
+        "create_directories": true,
+        "setup_logging": true,
+        "test_api_connection": true
+      }
+    },
+    "capture_today": {
+      "name": "Capture Today's Data",
+      "description": "Capture GitHub metrics for today's date",
+      "module": "data",
+      "config": {
+        "target_date": "today",
+        "parallel_processing": true,
+        "update_calendar": true,
+        "backup_before_write": true
+      }
+    },
+    "capture_date_range": {
+      "name": "Capture Date Range",
+      "description": "Capture GitHub metrics for a specific date range",
+      "module": "data",
+      "config": {
+        "start_date": "2025-09-01",
+        "end_date": "2025-09-30",
+        "parallel_processing": true,
+        "max_workers": 3,
+        "update_calendar": true
+      }
+    },
+    "capture_month": {
+      "name": "Capture Month",
+      "description": "Capture GitHub metrics for an entire month",
+      "module": "data",
+      "config": {
+        "year": 2025,
+        "month": 9,
+        "parallel_processing": true,
+        "max_workers": 3,
+        "update_calendar": true
+      }
+    },
+    "cleanup_logs": {
+      "name": "Cleanup Logs",
+      "description": "Clean up old log files",
+      "module": "cleanup",
+      "config": {
+        "retention_days": 7,
+        "dry_run": false
+      }
+    },
+    "cleanup_backups": {
+      "name": "Cleanup Backups",
+      "description": "Clean up old backup files",
+      "module": "cleanup",
+      "config": {
+        "retention_days": 3,
+        "dry_run": false
+      }
+    },
+    "system_health": {
+      "name": "System Health Check",
+      "description": "Check system health and configuration",
+      "module": "setup",
+      "config": {
+        "check_github_api": true,
+        "check_directories": true,
+        "check_permissions": true,
+        "validate_config": true
+      }
+    }
+  }
+}
