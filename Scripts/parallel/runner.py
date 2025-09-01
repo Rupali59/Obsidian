@@ -9,21 +9,21 @@ import sys
 import json
 import logging
 from pathlib import Path
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from sync.github.github_data_fetcher import GitHubDailyMetrics
+from parallel_repo_runner import ParallelRepoRunner
 
 class ParallelRunner:
     def __init__(self, obsidian_path: str, config_file: str):
         self.obsidian_path = Path(obsidian_path)
         self.config_file = Path(config_file)
         self.config = self._load_config()
-        self.data_fetcher = GitHubDataFetcher(obsidian_path)
+        self.parallel_runner = ParallelRepoRunner(obsidian_path)
         self._setup_logging()
         
     def _load_config(self):
@@ -55,7 +55,8 @@ class ParallelRunner:
         current_date = start_date
         while current_date <= end_date:
             dates.append(current_date)
-            current_date = current_date.replace(day=current_date.day + 1)
+            # Use timedelta to properly increment date
+            current_date = current_date + timedelta(days=1)
         
         return dates
     
@@ -63,7 +64,22 @@ class ParallelRunner:
         """Process a single date (worker function)"""
         try:
             self.logger.info(f"Processing {target_date}")
-            result = self.data_fetcher.capture_github_metrics(target_date)
+            # Use the parallel repo runner for this specific date
+            results = self.parallel_runner.run_for_date(target_date, max_workers=3, rate_limit=0.2, update_calendar=True)
+            
+            # Aggregate results for summary
+            total_commits = sum(len(result.get('commits', [])) for _, result in results)
+            total_prs = sum(len(result.get('pull_requests', [])) for _, result in results)
+            total_issues = sum(len(result.get('issues', [])) for _, result in results)
+            
+            result = {
+                "commits": total_commits,
+                "pull_requests": total_prs,
+                "issues": total_issues,
+                "repositories_processed": len(results)
+            }
+            
+            self.logger.info(f"Captured metrics: {total_commits} commits, {total_prs} PRs, {total_issues} issues")
             return target_date, result
         except Exception as e:
             self.logger.error(f"Error processing {target_date}: {e}")
@@ -72,8 +88,8 @@ class ParallelRunner:
     def run(self):
         """Run the parallel capture process"""
         dates = self._get_date_range()
-        workers = self.config.get('workers', 3)
-        rate_limit = self.config.get('rate_limit', 0.3)
+        workers = self.config.get('parallel_workers', 3)
+        rate_limit = self.config.get('rate_limit_delay', 0.3)
         
         print(f"🚀 Starting parallel capture: {self.config['name']}")
         print(f"📅 Processing {len(dates)} dates with {workers} workers")
@@ -124,6 +140,20 @@ class ParallelRunner:
                 if "error" in result:
                     print(f"   {target_date}: {result['error']}")
         
+        # Show activity summary for successful dates
+        successful_results = [r for _, r in results if "error" not in r]
+        if successful_results:
+            total_commits = sum(r.get('commits', 0) for r in successful_results)
+            total_prs = sum(r.get('pull_requests', 0) for r in successful_results)
+            total_issues = sum(r.get('issues', 0) for r in successful_results)
+            total_repos = sum(r.get('repositories_processed', 0) for r in successful_results)
+            
+            print(f"\n📈 Activity Summary:")
+            print(f"   📝 Total commits: {total_commits}")
+            print(f"   🔄 Total PRs: {total_prs}")
+            print(f"   🐛 Total issues: {total_issues}")
+            print(f"   📦 Total repository processing sessions: {total_repos}")
+        
         print("=" * 60)
 
 def main():
@@ -136,14 +166,14 @@ def main():
     obsidian_path = sys.argv[1]
     config_file = sys.argv[2]
     
-            try:
-            runner = ParallelRunner(obsidian_path, config_file)
-            runner.run()
-            print("✅ Parallel capture completed successfully!")
-        
-        except Exception as e:
-            print(f"❌ Parallel capture failed: {e}")
-            sys.exit(1)
+    try:
+        runner = ParallelRunner(obsidian_path, config_file)
+        runner.run()
+        print("✅ Parallel capture completed successfully!")
+    
+    except Exception as e:
+        print(f"❌ Parallel capture failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
