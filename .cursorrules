@@ -1,0 +1,47 @@
+# Cursor Rules for Obsidian Vault
+
+## File Creation Rules
+
+### README Files
+- **NEVER** create, suggest, or automatically add README files (README.md, README.txt, etc.) without explicitly asking the user first
+- If a README file is needed, always prompt the user with:
+  - Why it's needed
+  - What content should be included
+  - Whether they want to proceed
+- Only proceed with README creation after receiving explicit user approval
+
+### General File Creation
+- Always ask before creating new files or directories
+- Explain the purpose and structure of any suggested file organization
+- Respect the existing Obsidian vault structure and naming conventions
+
+## Code Generation Rules
+
+### Documentation
+- When suggesting code documentation, prefer inline comments over separate documentation files
+- If external documentation is needed, ask the user first
+
+### Project Structure
+- Maintain the existing Obsidian vault organization
+- Follow the established pattern of Notes/, Calendar/, Scripts/ directories
+- Preserve the markdown-based note-taking approach
+
+## User Consultation Requirements
+
+### Always Ask Before:
+- Creating new top-level directories
+- Adding configuration files
+- Modifying existing file structures
+- Introducing new file types or formats
+
+### Explain Before Proceeding:
+- The purpose of any suggested changes
+- How changes will affect the existing workflow
+- Alternative approaches if available
+
+## Obsidian-Specific Rules
+
+- Respect the `.obsidianignore` file
+- Maintain the markdown format for notes
+- Preserve the calendar structure and naming conventions
+- Keep the existing note organization system intact

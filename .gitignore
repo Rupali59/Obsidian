@@ -1,0 +1,9 @@
+
+# GitHub configuration (contains sensitive tokens)
+Scripts/github_config.env
+Scripts/*.log
+Scripts/config/github_config.env
+
+*.log
+*.env
+*.txt
