@@ -10,6 +10,6 @@ echo "========================================"
 OBSIDIAN_PATH="$(cd "$(dirname "$0")/../.." && pwd)"
 
 # Run the parallel repository runner
-python3 "$(dirname "$0")/runner.py" "$OBSIDIAN_PATH" "configs/july_2025.json"
+python3 "$(dirname "$0")/runner.py" "$OBSIDIAN_PATH" "$(dirname "$0")/../parallel/configs/july_2025.json"
 
 echo "✅ July 2025 parallel capture completed!"

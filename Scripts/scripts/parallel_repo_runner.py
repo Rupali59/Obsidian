@@ -204,8 +204,7 @@ class ParallelRepoRunner:
                 self.logger.error(f"Calendar file not found: {calendar_file}")
                 return
             
-            # Create backup before modifying
-            self._create_backup(calendar_file)
+            # Skip backup creation for cleaner operation
             
             # Read current content
             with open(calendar_file, 'r', encoding='utf-8') as f:
@@ -262,8 +261,6 @@ class ParallelRepoRunner:
         except Exception as e:
             self.logger.error(f"Error writing {repo_name} data to calendar: {e}")
             print(f"❌ Error writing {repo_name} data to calendar: {e}")
-            # Restore from backup if writing failed
-            self._restore_from_backup(calendar_file)
     
     def _format_repo_data_for_calendar(self, repo_name, result):
         """Format repository data for calendar display"""
@@ -298,31 +295,7 @@ class ParallelRepoRunner:
         except Exception as e:
             self.logger.error(f"Error updating activity summary: {e}")
     
-    def _create_backup(self, calendar_file):
-        """Create a backup of the calendar file before modification"""
-        try:
-            backup_file = calendar_file.with_suffix('.backup')
-            with open(calendar_file, 'r', encoding='utf-8') as src:
-                with open(backup_file, 'w', encoding='utf-8') as dst:
-                    dst.write(src.read())
-            self.logger.info(f"Created backup: {backup_file}")
-        except Exception as e:
-            self.logger.error(f"Error creating backup: {e}")
-    
-    def _restore_from_backup(self, calendar_file):
-        """Restore calendar file from backup if modification failed"""
-        try:
-            backup_file = calendar_file.with_suffix('.backup')
-            if backup_file.exists():
-                with open(backup_file, 'r', encoding='utf-8') as src:
-                    with open(calendar_file, 'w', encoding='utf-8') as dst:
-                        dst.write(src.read())
-                self.logger.info(f"Restored from backup: {backup_file}")
-                print(f"🔄 Restored calendar file from backup due to error")
-            else:
-                self.logger.error(f"Backup file not found: {backup_file}")
-        except Exception as e:
-            self.logger.error(f"Error restoring from backup: {e}")
+    # Backup functionality removed for cleaner operation
     
     def _update_calendar_with_results(self, results, target_date):
         """Update calendar entry with the parallel processing results"""
