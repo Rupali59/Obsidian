@@ -1,9 +1,0 @@
-{
-  "name": "May 2025 Capture",
-  "description": "Capture GitHub metrics for May 2025",
-  "start_date": "2025-05-01",
-  "end_date": "2025-05-31",
-  "parallel_workers": 3,
-  "rate_limit_delay": 0.3,
-  "progress_interval": 5
-}
