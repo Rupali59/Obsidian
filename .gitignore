@@ -3,6 +3,7 @@
 Scripts/github_config.env
 Scripts/*.log
 Scripts/config/github_config.env
+Scripts/config/unified_data_config.json
 
 *.log
 *.env
