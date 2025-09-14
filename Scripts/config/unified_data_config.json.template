@@ -1,0 +1,95 @@
+{
+  "metadata": {
+    "name": "Unified Data Collection Configuration",
+    "version": "1.0.0",
+    "description": "Configuration for GitHub and Wakatime data collection with Obsidian integration",
+    "last_updated": "2025-09-15",
+    "author": "Rupali"
+  },
+  "github": {
+    "enabled": true,
+    "api_token": "YOUR_GITHUB_TOKEN_HERE",
+    "username": "YOUR_GITHUB_USERNAME",
+    "repositories": [
+      "YOUR_USERNAME/repo1",
+      "YOUR_USERNAME/repo2",
+      "YOUR_USERNAME/repo3"
+    ],
+    "data_points": [
+      "commits",
+      "pull_requests", 
+      "issues",
+      "contributions",
+      "repositories"
+    ]
+  },
+  "wakatime": {
+    "enabled": false,
+    "api_key": "YOUR_WAKATIME_API_KEY_HERE",
+    "dashboard_url": "https://wakatime.com/dashboard",
+    "data_collection_method": "api_primary",
+    "fallback_method": "dashboard_scraping",
+    "api_endpoints": {
+      "summaries": "https://wakatime.com/api/v1/users/current/summaries",
+      "stats": "https://wakatime.com/api/v1/users/current/stats",
+      "all_time": "https://wakatime.com/api/v1/users/current/all_time_since_today"
+    },
+    "data_points": [
+      "total_coding_time",
+      "languages",
+      "projects", 
+      "editors",
+      "operating_systems",
+      "coding_streak",
+      "daily_average",
+      "best_day",
+      "categories"
+    ],
+    "screenshot_widgets": [
+      "languages_chart",
+      "projects_chart", 
+      "editors_chart",
+      "daily_activity",
+      "coding_streak",
+      "time_distribution"
+    ]
+  },
+  "obsidian": {
+    "vault_path": "/path/to/your/obsidian/vault",
+    "calendar_structure": "Calendar/{year}/{month}/{day}-{month}-{year}.md",
+    "data_integration": {
+      "github_section": "## GitHub Activity",
+      "wakatime_section": "## Wakatime Activity", 
+      "datatable_section": "## Development Analytics"
+    },
+    "datatable_config": {
+      "enabled": true,
+      "table_style": "advanced",
+      "include_charts": true,
+      "include_screenshots": true,
+      "screenshot_directory": "Scripts/screenshots"
+    }
+  },
+  "data_processing": {
+    "date_range": {
+      "default": "today",
+      "options": ["today", "yesterday", "last_7_days", "last_30_days", "custom"]
+    },
+    "output_formats": [
+      "markdown_tables",
+      "datatables", 
+      "screenshots",
+      "summary_text"
+    ],
+    "automation": {
+      "auto_run": false,
+      "schedule": "daily",
+      "time": "18:00"
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "Scripts/logs/unified_data_collection.log",
+    "console_output": true
+  }
+}
