@@ -1,8 +1,0 @@
-- There are 2 kinds of modals - the positive and the negative (masculinity/feminity)
-- There are wounded feminity and there is also wounded masculinity
-- You need to reach your best at feminity to understand what you might be missing on what
-- You would also transition between being your masculine self and then feminism self over and over again in your life due to circumstances, but you hold onto feminity when you feel safe and secure
-- When you are a kid, when some of your needs are not met, the personality splits  - one is the inner child which wants a particular thing and when you are denied that over and over again, the exterior self starts becoming the protector. When the inner protector becomes hyper-independent, you lean towards a weird masculinity, at the helm of masculinity and away from feminity.
-- To heal from that, you need to learn from a healed woman, who can allow you to come out and heal yourself as well.
-- We do paint an absolute picture of perfection when we court someone, after the woman becomes comfortable, this extra effort becomes a burden and the man realizes that this is not the same woman they fell in love with. That is the point of contention.
-- Dont be their mother, be a partner. Dont spoil them. They should feel the need to be provide for you, dont be that hyper masculine. 

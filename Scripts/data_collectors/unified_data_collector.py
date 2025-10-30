@@ -10,6 +10,7 @@ import sys
 import json
 import logging
 import requests
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 from pathlib import Path
 from datetime import datetime, date, timedelta
@@ -121,6 +122,96 @@ class SimpleGitHubCollector:
             'issues': issues,
             'repository_details': repository_details
         }
+
+# -------- Parallel commit fetching utilities (no Obsidian dependency) --------
+
+def _normalize_repo_identifier(raw_repo: str, default_username: str) -> str:
+    """Convert various repo formats to owner/repo"""
+    if not raw_repo:
+        return ""
+    if 'github.com' in raw_repo:
+        # Expecting formats like https://github.com/owner/repo or owner/repo
+        parts = raw_repo.split('github.com/')[-1].strip('/')
+        # parts could contain extra path segments; keep first two
+        owner_repo = '/'.join(parts.split('/')[:2])
+        return owner_repo
+    if '/' in raw_repo:
+        return raw_repo
+    # Just repo name; prefix username
+    return f"{default_username}/{raw_repo}"
+
+def _fetch_repo_commits(owner_repo: str, token: str, since_iso: str, until_iso: str) -> Dict:
+    """Fetch commits for a single repo within date range."""
+    api_base = "https://api.github.com"
+    headers = {
+        'Authorization': f'token {token}',
+        'Accept': 'application/vnd.github.v3+json'
+    }
+    url = f"{api_base}/repos/{owner_repo}/commits"
+    params = {
+        'since': since_iso,
+        'until': until_iso,
+        'per_page': 100
+    }
+    try:
+        resp = requests.get(url, headers=headers, params=params, timeout=30)
+        if resp.status_code != 200:
+            return { 'repository': owner_repo, 'error': f"HTTP {resp.status_code}", 'commits': [] }
+        data = resp.json()
+        commits = []
+        for c in data:
+            commit_obj = c.get('commit', {})
+            message = commit_obj.get('message', '') or ''
+            title, _, body = message.partition('\n\n')
+            commits.append({
+                'sha': c.get('sha'),
+                'html_url': c.get('html_url'),
+                'title': title.strip(),
+                'description': body.strip(),
+                'author': (commit_obj.get('author') or {}).get('name'),
+                'date': (commit_obj.get('author') or {}).get('date')
+            })
+        return { 'repository': owner_repo, 'commits': commits }
+    except Exception as e:
+        return { 'repository': owner_repo, 'error': str(e), 'commits': [] }
+
+def fetch_commits_parallel_from_config(config_path: str, since_date: date, until_date: date) -> Dict:
+    """Fetch commits in parallel for all repos in config between dates (inclusive)."""
+    with open(config_path, 'r') as f:
+        cfg = json.load(f)
+    gh_cfg = cfg.get('github', {})
+    token = gh_cfg.get('api_token', '')
+    username = gh_cfg.get('username', '')
+    raw_repos = gh_cfg.get('repositories', [])
+    repos = [_normalize_repo_identifier(r, username) for r in raw_repos]
+
+    since_iso = f"{since_date.isoformat()}T00:00:00Z"
+    # Use end of day for until
+    until_iso = f"{until_date.isoformat()}T23:59:59Z"
+
+    results: Dict[str, List[Dict]] = {}
+    errors: Dict[str, str] = {}
+    with ThreadPoolExecutor(max_workers=min(8, max(1, len(repos)))) as executor:
+        future_map = {
+            executor.submit(_fetch_repo_commits, repo, token, since_iso, until_iso): repo
+            for repo in repos
+        }
+        for fut in as_completed(future_map):
+            repo = future_map[fut]
+            res = fut.result()
+            if 'error' in res and res['error']:
+                errors[repo] = res['error']
+            results[repo] = res.get('commits', [])
+
+    summary = {
+        'since': since_date.isoformat(),
+        'until': until_date.isoformat(),
+        'total_repositories': len(repos),
+        'total_commits': sum(len(c) for c in results.values()),
+        'repositories': results,
+        'errors': errors
+    }
+    return summary
 
 # Configure logging
 logging.basicConfig(
@@ -532,9 +623,20 @@ def main():
     parser.add_argument('--config', default='/Users/rupali.b/Documents/GitHub/Obsidian/Scripts/config/unified_data_config.json', help='Config file path')
     parser.add_argument('--date', type=str, help='Specific date (YYYY-MM-DD)')
     parser.add_argument('--today', action='store_true', help='Process today (default)')
+    # New parallel commit fetching mode
+    parser.add_argument('--commits-range', nargs=2, metavar=('SINCE','UNTIL'), help='Fetch commit titles/descriptions for all repos between dates (YYYY-MM-DD YYYY-MM-DD)')
     
     args = parser.parse_args()
     
+    # If commits-range provided, run parallel fetch and print JSON to stdout
+    if args.commits_range:
+        since_str, until_str = args.commits_range
+        since_dt = datetime.strptime(since_str, '%Y-%m-%d').date()
+        until_dt = datetime.strptime(until_str, '%Y-%m-%d').date()
+        summary = fetch_commits_parallel_from_config(args.config, since_dt, until_dt)
+        print(json.dumps(summary, indent=2))
+        return
+
     # Determine target date
     if args.date:
         target_date = datetime.strptime(args.date, '%Y-%m-%d').date()
