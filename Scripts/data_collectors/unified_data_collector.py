@@ -31,8 +31,107 @@ class SimpleGitHubCollector:
             'Accept': 'application/vnd.github.v3+json'
         }
     
+    def _fetch_repo_data(self, repo: str, date_str: str) -> Dict:
+        """Fetch data for a single repository (called in parallel)"""
+        repo_commits = 0
+        repo_prs = 0
+        repo_issues = 0
+        seen_commits = set()  # Track unique commit SHAs to avoid duplicates
+        
+        # Normalize repository to owner/repo if a URL was provided
+        owner_repo = repo
+        if 'github.com' in owner_repo:
+            owner_repo = owner_repo.split('github.com/')[-1].strip('/')
+            owner_repo = '/'.join(owner_repo.split('/')[:2])
+
+        # Get all branches first
+        if '/' in owner_repo:
+            branches_url = f"{self.api_base}/repos/{owner_repo}/branches"
+        else:
+            branches_url = f"{self.api_base}/repos/{self.username}/{repo}/branches"
+        
+        branches = []
+        try:
+            response = requests.get(branches_url, headers=self.headers, timeout=10)
+            if response.status_code == 200:
+                branches_data = response.json()
+                branches = [b['name'] for b in branches_data]
+        except Exception as e:
+            logging.warning(f"Failed to fetch branches for {repo}, will try default branch: {e}")
+            branches = []  # Will fall back to default branch
+        
+        # If no branches found, fetch from default branch (no branch param)
+        if not branches:
+            branches = [None]  # None means use default branch
+        
+        # Get commits from all branches
+        for branch in branches:
+            if '/' in owner_repo:
+                commits_url = f"{self.api_base}/repos/{owner_repo}/commits"
+            else:
+                commits_url = f"{self.api_base}/repos/{self.username}/{repo}/commits"
+            
+            params = {'since': f"{date_str}T00:00:00Z", 'per_page': 100}
+            if branch:  # Add branch parameter if specified
+                params['sha'] = branch
+            
+            try:
+                response = requests.get(commits_url, headers=self.headers, params=params, timeout=10)
+                if response.status_code == 200:
+                    commits_data = response.json()
+                    for commit in commits_data:
+                        commit_sha = commit['sha']
+                        commit_date = commit['commit']['committer']['date'][:10]
+                        
+                        # Only count unique commits on the target date
+                        if commit_date == date_str and commit_sha not in seen_commits:
+                            seen_commits.add(commit_sha)
+                            repo_commits += 1
+                        elif commit_date < date_str:
+                            break
+            except Exception as e:
+                logging.warning(f"Failed to fetch commits for {repo} (branch: {branch}): {e}")
+        
+        # Get pull requests
+        if '/' in owner_repo:
+            prs_url = f"{self.api_base}/repos/{owner_repo}/pulls"
+        else:
+            prs_url = f"{self.api_base}/repos/{self.username}/{repo}/pulls"
+        params = {'state': 'all', 'since': f"{date_str}T00:00:00Z"}
+        
+        try:
+            response = requests.get(prs_url, headers=self.headers, params=params, timeout=10)
+            if response.status_code == 200:
+                prs_data = response.json()
+                repo_prs = len([pr for pr in prs_data if pr['created_at'].startswith(date_str)])
+        except Exception as e:
+            logging.warning(f"Failed to fetch PRs for {repo}: {e}")
+        
+        # Get issues
+        if '/' in owner_repo:
+            issues_url = f"{self.api_base}/repos/{owner_repo}/issues"
+        else:
+            issues_url = f"{self.api_base}/repos/{self.username}/{repo}/issues"
+        params = {'state': 'all', 'since': f"{date_str}T00:00:00Z"}
+        
+        try:
+            response = requests.get(issues_url, headers=self.headers, params=params, timeout=10)
+            if response.status_code == 200:
+                issues_data = response.json()
+                repo_issues = len([issue for issue in issues_data if issue['created_at'].startswith(date_str)])
+        except Exception as e:
+            logging.warning(f"Failed to fetch issues for {repo}: {e}")
+        
+        display_name = owner_repo.split('/')[-1] if '/' in owner_repo else repo
+        return {
+            'repo': display_name,
+            'commits': repo_commits,
+            'prs': repo_prs,
+            'issues': repo_issues
+        }
+    
     def collect_data_for_date(self, target_date: date) -> Dict:
-        """Collect GitHub data for a specific date"""
+        """Collect GitHub data for a specific date (parallelized per repo)"""
         commits = 0
         prs = 0
         issues = 0
@@ -40,81 +139,34 @@ class SimpleGitHubCollector:
         
         date_str = target_date.strftime('%Y-%m-%d')
         
-        for repo in self.repositories:
-            repo_commits = 0
-            repo_prs = 0
-            repo_issues = 0
+        # Fetch data from all repos in parallel
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = {
+                executor.submit(self._fetch_repo_data, repo, date_str): repo 
+                for repo in self.repositories
+            }
             
-            # Get commits - handle both full repo names and just repo names
-            if '/' in repo:
-                commits_url = f"{self.api_base}/repos/{repo}/commits"
-            else:
-                commits_url = f"{self.api_base}/repos/{self.username}/{repo}/commits"
-            params = {'since': f"{date_str}T00:00:00Z", 'per_page': 100}
-            
-            try:
-                response = requests.get(commits_url, headers=self.headers, params=params)
-                if response.status_code == 200:
-                    commits_data = response.json()
-                    # Filter commits that were actually made on the target date
-                    repo_commits = 0
-                    for commit in commits_data:
-                        commit_date = commit['commit']['committer']['date'][:10]  # Get YYYY-MM-DD part
-                        if commit_date == date_str:
-                            repo_commits += 1
-                        elif commit_date < date_str:
-                            # Stop if we've gone past the target date
-                            break
+            for future in as_completed(futures):
+                try:
+                    result = future.result()
+                    repo_commits = result['commits']
+                    repo_prs = result['prs']
+                    repo_issues = result['issues']
+                    
                     commits += repo_commits
-                time.sleep(0.1)  # Rate limiting
-            except Exception as e:
-                logging.warning(f"Failed to fetch commits for {repo}: {e}")
-            
-            # Get pull requests - handle both full repo names and just repo names
-            if '/' in repo:
-                prs_url = f"{self.api_base}/repos/{repo}/pulls"
-            else:
-                prs_url = f"{self.api_base}/repos/{self.username}/{repo}/pulls"
-            params = {'state': 'all', 'since': f"{date_str}T00:00:00Z"}
-            
-            try:
-                response = requests.get(prs_url, headers=self.headers, params=params)
-                if response.status_code == 200:
-                    prs_data = response.json()
-                    # Filter PRs created on target date
-                    repo_prs = len([pr for pr in prs_data if pr['created_at'].startswith(date_str)])
                     prs += repo_prs
-                time.sleep(0.1)  # Rate limiting
-            except Exception as e:
-                logging.warning(f"Failed to fetch PRs for {repo}: {e}")
-            
-            # Get issues - handle both full repo names and just repo names
-            if '/' in repo:
-                issues_url = f"{self.api_base}/repos/{repo}/issues"
-            else:
-                issues_url = f"{self.api_base}/repos/{self.username}/{repo}/issues"
-            params = {'state': 'all', 'since': f"{date_str}T00:00:00Z"}
-            
-            try:
-                response = requests.get(issues_url, headers=self.headers, params=params)
-                if response.status_code == 200:
-                    issues_data = response.json()
-                    # Filter issues created on target date
-                    repo_issues = len([issue for issue in issues_data if issue['created_at'].startswith(date_str)])
                     issues += repo_issues
-                time.sleep(0.1)  # Rate limiting
-            except Exception as e:
-                logging.warning(f"Failed to fetch issues for {repo}: {e}")
-            
-            # Store repository details if there was activity
-            if repo_commits > 0 or repo_prs > 0 or repo_issues > 0:
-                # Use just the repo name for display
-                display_name = repo.split('/')[-1] if '/' in repo else repo
-                repository_details[display_name] = {
-                    'commits': repo_commits,
-                    'prs': repo_prs,
-                    'issues': repo_issues
-                }
+                    
+                    # Store per-repository details if there's activity
+                    if repo_commits > 0 or repo_prs > 0 or repo_issues > 0:
+                        repository_details[result['repo']] = {
+                            'commits': repo_commits,
+                            'prs': repo_prs,
+                            'issues': repo_issues
+                        }
+                except Exception as e:
+                    repo = futures[future]
+                    logging.error(f"Error processing {repo}: {e}")
         
         return {
             'commits': commits,
@@ -504,13 +556,13 @@ class UnifiedDataCollector:
         content.append("| Metric | GitHub | Wakatime |")
         content.append("|--------|--------|----------|")
         
-        github_commits = github_data.get('total_commits', 0) if github_data else 0
+        github_commits = github_data.get('commits', 0) if github_data else 0
         wakatime_time = wakatime_data.get('daily_data', {}).get('total_time', '0h 0m') if wakatime_data else '0h 0m'
         
         content.append(f"| Commits | {github_commits} | - |")
         content.append(f"| Coding Time | - | {wakatime_time} |")
-        content.append(f"| Pull Requests | {github_data.get('total_prs', 0) if github_data else 0} | - |")
-        content.append(f"| Issues | {github_data.get('total_issues', 0) if github_data else 0} | - |")
+        content.append(f"| Pull Requests | {github_data.get('prs', 0) if github_data else 0} | - |")
+        content.append(f"| Issues | {github_data.get('issues', 0) if github_data else 0} | - |")
         content.append("")
         
         # Wakatime detailed tables
@@ -552,9 +604,13 @@ class UnifiedDataCollector:
             calendar_dir = self.calendar_path / str(year) / month
             calendar_file = calendar_dir / f"{day}.md"
             
+            # Ensure directory exists and create file with a basic header if missing
             if not calendar_file.exists():
-                print(f"⚠️  Calendar file not found: {calendar_file}")
-                return False
+                calendar_dir.mkdir(parents=True, exist_ok=True)
+                header = f"# {month} {target_date.strftime('%d')}, {year}\n\n"
+                with open(calendar_file, 'w', encoding='utf-8') as f:
+                    f.write(header)
+                print(f"🆕 Created calendar file: {calendar_file}")
             
             # Read existing content
             with open(calendar_file, 'r', encoding='utf-8') as f:
@@ -565,7 +621,17 @@ class UnifiedDataCollector:
             wakatime_content = self.format_wakatime_content(wakatime_data)
             datatable_content = self.create_datatable_content(github_data, wakatime_data)
             
-            # Combine all content
+            # Remove any existing GitHub Activity, Wakatime, and Development Analytics sections
+            import re
+            # Remove from first occurrence of "## GitHub Activity" to the end
+            existing_content = re.sub(
+                r'\n## GitHub Activity.*$',
+                '',
+                existing_content,
+                flags=re.DOTALL
+            )
+            
+            # Combine all content (replace old sections with new)
             new_content = existing_content.rstrip() + "\n\n" + github_content + "\n\n" + wakatime_content + "\n\n" + datatable_content
             
             # Write updated content

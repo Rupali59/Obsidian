@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Job Label (unique identifier) -->
+    <key>Label</key>
+    <string>com.obsidian.dailycollect</string>
+    
+    <!-- Program to run -->
+    <key>Program</key>
+    <string>/Users/rupali.b/Documents/GitHub/Obsidian/Scripts/daily_auto_collect.sh</string>
+    
+    <!-- Schedule: Run at 10 PM every day -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>22</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+    
+    <!-- Working Directory -->
+    <key>WorkingDirectory</key>
+    <string>/Users/rupali.b/Documents/GitHub/Obsidian</string>
+    
+    <!-- Standard Output/Error Logs -->
+    <key>StandardOutPath</key>
+    <string>/Users/rupali.b/Documents/GitHub/Obsidian/Scripts/logs/launchd_stdout.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/rupali.b/Documents/GitHub/Obsidian/Scripts/logs/launchd_stderr.log</string>
+    
+    <!-- Run even if the previous instance failed -->
+    <key>RunAtLoad</key>
+    <false/>
+    
+    <!-- Environment Variables -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin</string>
+    </dict>
+    
+    <!-- Keep job alive and restart if it exits -->
+    <key>KeepAlive</key>
+    <false/>
+    
+    <!-- Start job on system load -->
+    <key>LaunchOnlyOnce</key>
+    <false/>
+</dict>
+</plist>
+

@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "acfe8a8a4336b6ce",
+        "id": "ae9e4d9095cad167",
         "type": "tabs",
         "children": [
           {
-            "id": "b57ebeee45432052",
+            "id": "fe3e637c01b2338a",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Calendar/2025/October/30-10-2025.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "30-10-2025"
+              "title": "New tab"
             }
           }
         ]
@@ -141,13 +137,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Calendar/2025/October/30-10-2025.md",
+                "file": "Calendar/2025/October/30-10-2025_2.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 30-10-2025"
+              "title": "Outline of 30-10-2025_2"
             }
           }
         ],
@@ -169,9 +165,17 @@
       "cursor-bridge:Open in Cursor": false
     }
   },
-  "active": "b57ebeee45432052",
+  "active": "8d79b0c324111b6d",
   "lastOpenFiles": [
+    "Calendar/2025/October/30-10-2025_1.md",
+    "Calendar/2025/October/30-10-2025_2.md",
+    "Calendar/2025/October/11-11-2025.md",
+    "Calendar/2025/October/10-11-2025.md",
+    "Calendar/2025/October/01-10-2025.md",
+    "Calendar/2025/October/01-11-2025.md",
     "Calendar/2025/October/30-10-2025.md",
+    "index.md",
+    "Pasted image 20250821225806.png",
     "Calendar/2025/September/30-09-2025.md",
     "Calendar/2025/September/29-09-2025.md",
     "Calendar/2025/September/28-09-2025.md",
@@ -190,20 +194,12 @@
     "Calendar/2025/October/14-10-2025.md",
     "Calendar/2025/October/13-10-2025.md",
     "Calendar/2025/October/12-10-2025.md",
-    "Calendar/2025/October/11-10-2025.md",
-    "Calendar/2025/October/10-10-2025.md",
-    "Calendar/2025/October/09-10-2025.md",
-    "Calendar/2025/October/08-10-2025.md",
-    "Calendar/2025/October/07-10-2025.md",
-    "Calendar/2025/October/06-10-2025.md",
-    "Calendar/2025/October/01-10-2025.md",
     "Notes/SSJK-WEBSITE",
     "Scripts/scripts/scripts/unified_data_collector.log",
     "Scripts/scripts/scripts/wakatime_api_client.log",
     "Scripts/scripts/scripts/github_batched_metrics.log",
     "Scripts/scripts/scripts/cleanup_script.sh",
     "Scripts/scripts/scripts/setup_config.py",
-    "Pasted image 20250821225806.png",
     "Scripts/utilities/mobile_sync_vault.ps1",
     "Scripts/utilities/sync_vault.bat",
     "Scripts/utilities/auto_sync_vault.ps1",
