@@ -282,11 +282,18 @@ def fetch_commits_parallel_from_config(config_path: str, since_date: date, until
     return summary
 
 # Configure logging
+# Get the Scripts directory (parent of data_collectors)
+SCRIPTS_DIR = Path(__file__).parent.parent
+LOGS_DIR = SCRIPTS_DIR / 'logs'
+
+# Ensure logs directory exists
+LOGS_DIR.mkdir(exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('unified_data_collector.log'),
+        logging.FileHandler(LOGS_DIR / 'unified_data_collector.log'),
         logging.StreamHandler()
     ]
 )

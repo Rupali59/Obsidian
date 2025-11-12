@@ -5,7 +5,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLIST_NAME="com.obsidian.dailycollect"
-PLIST_FILE="$SCRIPT_DIR/$PLIST_NAME.plist"
+PLIST_FILE="$SCRIPT_DIR/config/$PLIST_NAME.plist"
 LAUNCH_AGENTS_DIR="$HOME/Library/LaunchAgents"
 INSTALLED_PLIST="$LAUNCH_AGENTS_DIR/$PLIST_NAME.plist"
 DAILY_SCRIPT="$SCRIPT_DIR/daily_auto_collect.sh"
