@@ -37,6 +37,7 @@ class SimpleGitHubCollector:
         repo_prs = 0
         repo_issues = 0
         seen_commits = set()  # Track unique commit SHAs to avoid duplicates
+        commit_details = []  # Store actual commit details
         
         # Normalize repository to owner/repo if a URL was provided
         owner_repo = repo
@@ -87,6 +88,18 @@ class SimpleGitHubCollector:
                         if commit_date == date_str and commit_sha not in seen_commits:
                             seen_commits.add(commit_sha)
                             repo_commits += 1
+                            
+                            # Store commit details
+                            commit_msg = commit.get('commit', {}).get('message', '')
+                            commit_author = commit.get('commit', {}).get('author', {}).get('name', 'Unknown')
+                            commit_url = commit.get('html_url', '')
+                            
+                            commit_details.append({
+                                'sha': commit_sha[:7],  # Short SHA
+                                'message': commit_msg.split('\n')[0],  # First line only
+                                'author': commit_author,
+                                'url': commit_url
+                            })
                         elif commit_date < date_str:
                             break
             except Exception as e:
@@ -127,7 +140,8 @@ class SimpleGitHubCollector:
             'repo': display_name,
             'commits': repo_commits,
             'prs': repo_prs,
-            'issues': repo_issues
+            'issues': repo_issues,
+            'commit_details': commit_details
         }
     
     def collect_data_for_date(self, target_date: date) -> Dict:
@@ -152,6 +166,7 @@ class SimpleGitHubCollector:
                     repo_commits = result['commits']
                     repo_prs = result['prs']
                     repo_issues = result['issues']
+                    repo_commit_details = result.get('commit_details', [])
                     
                     commits += repo_commits
                     prs += repo_prs
@@ -162,7 +177,8 @@ class SimpleGitHubCollector:
                         repository_details[result['repo']] = {
                             'commits': repo_commits,
                             'prs': repo_prs,
-                            'issues': repo_issues
+                            'issues': repo_issues,
+                            'commit_details': repo_commit_details
                         }
                 except Exception as e:
                     repo = futures[future]
@@ -462,13 +478,28 @@ class UnifiedDataCollector:
         content.append("**🔧 Components Worked On:**")
         content.append("")
         
-        # Repository details
+        # Repository details with commit details
         for repo_name, repo_metrics in github_data.get('repository_details', {}).items():
             if repo_metrics.get('commits', 0) > 0 or repo_metrics.get('prs', 0) > 0 or repo_metrics.get('issues', 0) > 0:
                 content.append(f"#### **{repo_name}**")
                 content.append(f"- **Commits**: {repo_metrics.get('commits', 0)}")
                 content.append(f"- **Pull Requests**: {repo_metrics.get('prs', 0)}")
                 content.append(f"- **Issues**: {repo_metrics.get('issues', 0)}")
+                
+                # Add commit details if available
+                commit_details = repo_metrics.get('commit_details', [])
+                if commit_details:
+                    content.append("")
+                    content.append("**📝 Commits:**")
+                    for commit in commit_details:
+                        sha = commit.get('sha', 'unknown')
+                        message = commit.get('message', 'No message')
+                        url = commit.get('url', '')
+                        if url:
+                            content.append(f"- [`{sha}`]({url}) {message}")
+                        else:
+                            content.append(f"- `{sha}` {message}")
+                
                 content.append("")
         
         
