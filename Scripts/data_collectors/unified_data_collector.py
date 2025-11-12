@@ -733,7 +733,7 @@ def main():
         summary = fetch_commits_parallel_from_config(args.config, since_dt, until_dt)
         print(json.dumps(summary, indent=2))
         return
-
+    
     # Determine target date
     if args.date:
         target_date = datetime.strptime(args.date, '%Y-%m-%d').date()
