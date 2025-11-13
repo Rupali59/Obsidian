@@ -11,10 +11,14 @@
             "id": "fe3e637c01b2338a",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Calendar/2025/November/12-11-2025.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "12-11-2025"
             }
           }
         ]
@@ -137,13 +141,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Calendar/2025/October/30-10-2025_2.md",
+                "file": "Calendar/2025/November/12-11-2025.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 30-10-2025_2"
+              "title": "Outline of 12-11-2025"
             }
           }
         ],
@@ -165,8 +169,17 @@
       "cursor-bridge:Open in Cursor": false
     }
   },
-  "active": "8d79b0c324111b6d",
+  "active": "fe3e637c01b2338a",
   "lastOpenFiles": [
+    "Calendar/2025/November/11-11-2025.md",
+    "Calendar/2025/November/12-11-2025.md",
+    "Scripts/logs/launchd_stderr.log",
+    "Scripts/logs/launchd_stdout.log",
+    "Calendar/2025/November/06-11-2025.md",
+    "Calendar/2025/November/07-11-2025.md",
+    "Calendar/2025/November/08-11-2025.md",
+    "Calendar/2025/November/09-11-2025.md",
+    "Calendar/2025/November/10-11-2025.md",
     "Calendar/2025/October/30-10-2025_1.md",
     "Calendar/2025/October/30-10-2025_2.md",
     "Calendar/2025/October/11-11-2025.md",
@@ -186,14 +199,6 @@
     "Calendar/2025/September/23-09-2025.md",
     "Calendar/2025/September/22-09-2025.md",
     "Calendar/2025/September/21-09-2025.md",
-    "Calendar/2025/September/20-09-2025.md",
-    "Calendar/2025/September/19-09-2025.md",
-    "Calendar/2025/September/18-09-2025.md",
-    "Calendar/2025/September/17-09-2025.md",
-    "Calendar/2025/September/16-09-2025.md",
-    "Calendar/2025/October/14-10-2025.md",
-    "Calendar/2025/October/13-10-2025.md",
-    "Calendar/2025/October/12-10-2025.md",
     "Notes/SSJK-WEBSITE",
     "Scripts/scripts/scripts/unified_data_collector.log",
     "Scripts/scripts/scripts/wakatime_api_client.log",
@@ -201,8 +206,6 @@
     "Scripts/scripts/scripts/cleanup_script.sh",
     "Scripts/scripts/scripts/setup_config.py",
     "Scripts/utilities/mobile_sync_vault.ps1",
-    "Scripts/utilities/sync_vault.bat",
-    "Scripts/utilities/auto_sync_vault.ps1",
-    "Scripts/utilities/cleanup_daily_notes.ps1"
+    "Scripts/utilities/sync_vault.bat"
   ]
 }
