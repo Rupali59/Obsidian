@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "ae9e4d9095cad167",
+        "id": "64b3604ba3baafb7",
         "type": "tabs",
         "children": [
           {
-            "id": "fe3e637c01b2338a",
+            "id": "30c08b2e33c45861",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Calendar/2025/November/12-11-2025.md",
+                "file": "Calendar/2025/December/19-12-2025.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "12-11-2025"
+              "title": "19-12-2025"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 200
   },
   "right": {
     "id": "0577f9c988b59db7",
@@ -141,13 +141,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Calendar/2025/November/12-11-2025.md",
+                "file": "Calendar/2025/December/17-12-2025.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 12-11-2025"
+              "title": "Outline of 17-12-2025"
             }
           }
         ],
@@ -155,7 +155,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 200,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -169,10 +170,26 @@
       "cursor-bridge:Open in Cursor": false
     }
   },
-  "active": "fe3e637c01b2338a",
+  "active": "30c08b2e33c45861",
   "lastOpenFiles": [
-    "Calendar/2025/November/11-11-2025.md",
+    "Calendar/2025/December/18-12-2025.md",
+    "Calendar/2025/December/19-12-2025.md",
+    "Calendar/2025/December/16-12-2025.md",
+    "Calendar/2025/December/17-12-2025.md",
+    "Calendar/2025/November/16-11-2025.md",
+    "Calendar/2025/December/13-12-2025.md",
+    "Calendar/2025/December/14-12-2025.md",
+    "Calendar/2025/December/08-12-2025.md",
+    "Calendar/2025/December/09-12-2025.md",
+    "Calendar/2025/December/12-12-2025.md",
+    "Calendar/2025/December/11-12-2025.md",
+    "Calendar/2025/December/10-12-2025.md",
+    "Calendar/2025/November/15-11-2025.md",
     "Calendar/2025/November/12-11-2025.md",
+    "Calendar/index.md",
+    "Calendar/2025/November/13-11-2025.md",
+    "Calendar/2025/November/14-11-2025.md",
+    "Calendar/2025/November/11-11-2025.md",
     "Scripts/logs/launchd_stderr.log",
     "Scripts/logs/launchd_stdout.log",
     "Calendar/2025/November/06-11-2025.md",
@@ -183,22 +200,7 @@
     "Calendar/2025/October/30-10-2025_1.md",
     "Calendar/2025/October/30-10-2025_2.md",
     "Calendar/2025/October/11-11-2025.md",
-    "Calendar/2025/October/10-11-2025.md",
-    "Calendar/2025/October/01-10-2025.md",
-    "Calendar/2025/October/01-11-2025.md",
-    "Calendar/2025/October/30-10-2025.md",
-    "index.md",
     "Pasted image 20250821225806.png",
-    "Calendar/2025/September/30-09-2025.md",
-    "Calendar/2025/September/29-09-2025.md",
-    "Calendar/2025/September/28-09-2025.md",
-    "Calendar/2025/September/27-09-2025.md",
-    "Calendar/2025/September/26-09-2025.md",
-    "Calendar/2025/September/25-09-2025.md",
-    "Calendar/2025/September/24-09-2025.md",
-    "Calendar/2025/September/23-09-2025.md",
-    "Calendar/2025/September/22-09-2025.md",
-    "Calendar/2025/September/21-09-2025.md",
     "Notes/SSJK-WEBSITE",
     "Scripts/scripts/scripts/unified_data_collector.log",
     "Scripts/scripts/scripts/wakatime_api_client.log",
