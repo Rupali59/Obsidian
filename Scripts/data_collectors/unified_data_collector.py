@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Unified Data Collector
-Combines GitHub and Wakatime data collection with Obsidian integration
-Uses configuration file for all settings and supports both API and dashboard scraping
+GitHub data collection with Obsidian integration
+Uses configuration file for all settings
 """
 
 import os
@@ -11,7 +11,6 @@ import json
 import logging
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import time
 from pathlib import Path
 from datetime import datetime, date, timedelta
 from typing import Dict, List, Optional, Union
@@ -54,9 +53,15 @@ class SimpleGitHubCollector:
         branches = []
         try:
             response = requests.get(branches_url, headers=self.headers, timeout=10)
+            if response.status_code == 403:
+                error_msg = f"GitHub API returned 403 Forbidden for {repo}. Access denied - token may be invalid or expired."
+                logging.error(error_msg)
+                raise PermissionError(error_msg)
             if response.status_code == 200:
                 branches_data = response.json()
                 branches = [b['name'] for b in branches_data]
+        except PermissionError:
+            raise  # Re-raise permission errors
         except Exception as e:
             logging.warning(f"Failed to fetch branches for {repo}, will try default branch: {e}")
             branches = []  # Will fall back to default branch
@@ -78,6 +83,10 @@ class SimpleGitHubCollector:
             
             try:
                 response = requests.get(commits_url, headers=self.headers, params=params, timeout=10)
+                if response.status_code == 403:
+                    error_msg = f"GitHub API returned 403 Forbidden for {repo} commits. Access denied - token may be invalid or expired."
+                    logging.error(error_msg)
+                    raise PermissionError(error_msg)
                 if response.status_code == 200:
                     commits_data = response.json()
                     for commit in commits_data:
@@ -102,6 +111,8 @@ class SimpleGitHubCollector:
                             })
                         elif commit_date < date_str:
                             break
+            except PermissionError:
+                raise  # Re-raise permission errors
             except Exception as e:
                 logging.warning(f"Failed to fetch commits for {repo} (branch: {branch}): {e}")
         
@@ -114,9 +125,15 @@ class SimpleGitHubCollector:
         
         try:
             response = requests.get(prs_url, headers=self.headers, params=params, timeout=10)
+            if response.status_code == 403:
+                error_msg = f"GitHub API returned 403 Forbidden for {repo} PRs. Access denied - token may be invalid or expired."
+                logging.error(error_msg)
+                raise PermissionError(error_msg)
             if response.status_code == 200:
                 prs_data = response.json()
                 repo_prs = len([pr for pr in prs_data if pr['created_at'].startswith(date_str)])
+        except PermissionError:
+            raise  # Re-raise permission errors
         except Exception as e:
             logging.warning(f"Failed to fetch PRs for {repo}: {e}")
         
@@ -129,9 +146,15 @@ class SimpleGitHubCollector:
         
         try:
             response = requests.get(issues_url, headers=self.headers, params=params, timeout=10)
+            if response.status_code == 403:
+                error_msg = f"GitHub API returned 403 Forbidden for {repo} issues. Access denied - token may be invalid or expired."
+                logging.error(error_msg)
+                raise PermissionError(error_msg)
             if response.status_code == 200:
                 issues_data = response.json()
                 repo_issues = len([issue for issue in issues_data if issue['created_at'].startswith(date_str)])
+        except PermissionError:
+            raise  # Re-raise permission errors
         except Exception as e:
             logging.warning(f"Failed to fetch issues for {repo}: {e}")
         
@@ -150,6 +173,8 @@ class SimpleGitHubCollector:
         prs = 0
         issues = 0
         repository_details = {}
+        has_403_error = False
+        error_repos = []
         
         date_str = target_date.strftime('%Y-%m-%d')
         
@@ -180,9 +205,27 @@ class SimpleGitHubCollector:
                             'issues': repo_issues,
                             'commit_details': repo_commit_details
                         }
+                except PermissionError as e:
+                    repo = futures[future]
+                    has_403_error = True
+                    error_repos.append(repo)
+                    logging.error(f"403 Forbidden error for {repo}: {e}")
                 except Exception as e:
                     repo = futures[future]
                     logging.error(f"Error processing {repo}: {e}")
+        
+        # If we encountered any 403 errors, raise an exception to stop processing
+        if has_403_error:
+            error_message = (
+                f"\n❌ GITHUB API ACCESS DENIED (403 Forbidden)\n"
+                f"   GitHub is not accessible. Please check:\n"
+                f"   1. Your GitHub API token is valid and not expired\n"
+                f"   2. The token has the necessary permissions\n"
+                f"   3. Your network connection is working\n"
+                f"   Affected repositories: {', '.join(error_repos[:5])}{'...' if len(error_repos) > 5 else ''}\n"
+                f"   Process stopped. No calendar files will be written.\n"
+            )
+            raise PermissionError(error_message)
         
         return {
             'commits': commits,
@@ -223,6 +266,10 @@ def _fetch_repo_commits(owner_repo: str, token: str, since_iso: str, until_iso: 
     }
     try:
         resp = requests.get(url, headers=headers, params=params, timeout=30)
+        if resp.status_code == 403:
+            error_msg = f"GitHub API returned 403 Forbidden for {owner_repo}. Access denied - token may be invalid or expired."
+            logging.error(error_msg)
+            return { 'repository': owner_repo, 'error': 'HTTP 403 Forbidden', 'commits': [], 'is_403': True }
         if resp.status_code != 200:
             return { 'repository': owner_repo, 'error': f"HTTP {resp.status_code}", 'commits': [] }
         data = resp.json()
@@ -259,6 +306,7 @@ def fetch_commits_parallel_from_config(config_path: str, since_date: date, until
 
     results: Dict[str, List[Dict]] = {}
     errors: Dict[str, str] = {}
+    has_403_error = False
     with ThreadPoolExecutor(max_workers=min(8, max(1, len(repos)))) as executor:
         future_map = {
             executor.submit(_fetch_repo_commits, repo, token, since_iso, until_iso): repo
@@ -269,7 +317,23 @@ def fetch_commits_parallel_from_config(config_path: str, since_date: date, until
             res = fut.result()
             if 'error' in res and res['error']:
                 errors[repo] = res['error']
+                if res.get('is_403', False) or '403' in res['error']:
+                    has_403_error = True
             results[repo] = res.get('commits', [])
+
+    # If we encountered 403 errors, raise an exception
+    if has_403_error:
+        error_repos = [repo for repo, error in errors.items() if '403' in error]
+        error_message = (
+            f"\n❌ GITHUB API ACCESS DENIED (403 Forbidden)\n"
+            f"   GitHub is not accessible. Please check:\n"
+            f"   1. Your GitHub API token is valid and not expired\n"
+            f"   2. The token has the necessary permissions\n"
+            f"   3. Your network connection is working\n"
+            f"   Affected repositories: {', '.join(error_repos[:5])}{'...' if len(error_repos) > 5 else ''}\n"
+            f"   Process stopped.\n"
+        )
+        raise PermissionError(error_message)
 
     summary = {
         'since': since_date.isoformat(),
@@ -308,7 +372,6 @@ class UnifiedDataCollector:
         
         # Initialize collectors
         self.github_collector = None
-        self.wakatime_collector = None
         
         # GitHub configuration from unified config
         self.github_config = self.config.get('github', {})
@@ -322,8 +385,7 @@ class UnifiedDataCollector:
         
         # Show enabled services
         github_enabled = self.config.get('github', {}).get('enabled', False)
-        wakatime_enabled = self.config.get('wakatime', {}).get('enabled', False)
-        print(f"🔧 Services: GitHub={'✅' if github_enabled else '❌'}, Wakatime={'✅' if wakatime_enabled else '❌'}")
+        print(f"🔧 Services: GitHub={'✅' if github_enabled else '❌'}")
     
     def _load_config(self) -> Dict:
         """Load configuration from JSON file"""
@@ -336,7 +398,7 @@ class UnifiedDataCollector:
             return {}
     
     def initialize_collectors(self):
-        """Initialize GitHub and Wakatime collectors based on config"""
+        """Initialize GitHub collector based on config"""
         try:
             # Initialize GitHub collector
             if self.config.get('github', {}).get('enabled', False):
@@ -351,22 +413,6 @@ class UnifiedDataCollector:
                     repo_names
                 )
                 print("✅ GitHub collector initialized")
-            
-            # Initialize Wakatime collector
-            if self.config.get('wakatime', {}).get('enabled', False):
-                print("🔧 Initializing Wakatime collector...")
-                self.wakatime_collector = WakatimeAPIClient(str(self.config_path))
-                
-                # Test API connection
-                if self.wakatime_collector.test_api_connection():
-                    print("✅ Wakatime API collector initialized")
-                else:
-                    print("⚠️  Wakatime API connection failed, will use mock data")
-                    # Fallback to mock data when API fails
-                    self.wakatime_collector = None
-                    print("✅ Wakatime fallback to mock data initialized")
-            else:
-                print("⏭️  Wakatime collector disabled in config")
             
             return True
             
@@ -395,78 +441,13 @@ class UnifiedDataCollector:
             print(f"✅ GitHub data collected: {github_data['commits']} commits, {github_data['prs']} PRs, {github_data['issues']} issues")
             return github_data
                 
+        except PermissionError as e:
+            # Re-raise permission errors to stop the process
+            print(str(e))
+            raise
         except Exception as e:
             print(f"❌ GitHub data collection failed: {e}")
             return {}
-    
-    def collect_wakatime_data(self, target_date: date) -> Dict:
-        """Collect Wakatime data for the target date"""
-        if not self.wakatime_collector:
-            print("⚠️  Wakatime collector not initialized, using mock data")
-            return self._get_mock_wakatime_data(target_date)
-        
-        try:
-            print(f"📊 Collecting Wakatime data for {target_date}...")
-            
-            # Try API first
-            if hasattr(self.wakatime_collector, 'get_daily_summary'):
-                daily_data = self.wakatime_collector.get_daily_summary(target_date)
-                stats_data = self.wakatime_collector.get_stats_summary("last_7_days")
-                
-                wakatime_data = {
-                    'date': target_date.strftime('%Y-%m-%d'),
-                    'daily_data': daily_data,
-                    'stats_data': stats_data,
-                    'source': 'api'
-                }
-                
-                print(f"✅ Wakatime data collected via API")
-                return wakatime_data
-            
-            else:
-                print("❌ No valid Wakatime collector method available, using mock data")
-                return self._get_mock_wakatime_data(target_date)
-                
-        except Exception as e:
-            print(f"❌ Error collecting Wakatime data: {e}, using mock data")
-            return self._get_mock_wakatime_data(target_date)
-    
-    def _get_mock_wakatime_data(self, target_date: date) -> Dict:
-        """Generate mock Wakatime data for testing"""
-        return {
-            'date': target_date.strftime('%Y-%m-%d'),
-            'daily_data': {
-                'total_time': '4h 32m',
-                'total_seconds': 16320,
-                'languages': [
-                    {'name': 'Python', 'time': '2h 15m', 'seconds': 8100, 'percentage': '49.8%'},
-                    {'name': 'JavaScript', 'time': '1h 30m', 'seconds': 5400, 'percentage': '33.2%'},
-                    {'name': 'TypeScript', 'time': '47m', 'seconds': 2820, 'percentage': '17.0%'}
-                ],
-                'projects': [
-                    {'name': 'obsidian-vault', 'time': '2h 10m', 'seconds': 7800, 'percentage': '47.8%'},
-                    {'name': 'ssjk-crm', 'time': '1h 45m', 'seconds': 6300, 'percentage': '38.6%'},
-                    {'name': 'quartz-site', 'time': '37m', 'seconds': 2220, 'percentage': '13.6%'}
-                ],
-                'editors': [
-                    {'name': 'VS Code', 'time': '3h 20m', 'seconds': 12000, 'percentage': '73.5%'},
-                    {'name': 'Cursor', 'time': '1h 12m', 'seconds': 4320, 'percentage': '26.5%'}
-                ],
-                'operating_systems': [
-                    {'name': 'macOS', 'time': '4h 32m', 'seconds': 16320, 'percentage': '100.0%'}
-                ]
-            },
-            'stats_data': {
-                'total_time': '28h 45m',
-                'daily_average': 4.1,
-                'best_day': {
-                    'date': '2025-09-08',
-                    'time': '6h 15m',
-                    'seconds': 22500
-                }
-            },
-            'source': 'mock'
-        }
     
     def format_github_content(self, github_data: Dict) -> str:
         """Format GitHub data for calendar entry"""
@@ -512,77 +493,7 @@ class UnifiedDataCollector:
         
         return "\n".join(content)
     
-    def format_wakatime_content(self, wakatime_data: Dict) -> str:
-        """Format Wakatime data for calendar entry"""
-        if not wakatime_data:
-            return ""
-        
-        daily_data = wakatime_data.get('daily_data', {})
-        stats_data = wakatime_data.get('stats_data', {})
-        
-        if hasattr(self.wakatime_collector, 'format_for_calendar'):
-            return self.wakatime_collector.format_for_calendar(daily_data, stats_data)
-        else:
-            # Fallback formatting
-            return self._format_wakatime_fallback(daily_data, stats_data)
-    
-    def _format_wakatime_fallback(self, daily_data: Dict, stats_data: Dict) -> str:
-        """Fallback Wakatime formatting"""
-        content = []
-        content.append("## Wakatime Activity")
-        content.append("")
-        
-        if daily_data.get('total_time') != '0h 0m':
-            content.append(f"**⏱️ Daily Coding Time:** {daily_data['total_time']}")
-            content.append("")
-        
-        # Languages
-        if daily_data.get('languages'):
-            content.append("### Programming Languages")
-            content.append("")
-            for lang in daily_data['languages'][:5]:
-                content.append(f"- **{lang['name']}**: {lang['time']} ({lang['percentage']})")
-            content.append("")
-        
-        # Projects
-        if daily_data.get('projects'):
-            content.append("### Active Projects")
-            content.append("")
-            for project in daily_data['projects'][:5]:
-                content.append(f"- **{project['name']}**: {project['time']} ({project['percentage']})")
-            content.append("")
-        
-        # Editors
-        if daily_data.get('editors'):
-            content.append("### Development Tools")
-            content.append("")
-            for editor in daily_data['editors'][:3]:
-                content.append(f"- **{editor['name']}**: {editor['time']} ({editor['percentage']})")
-            content.append("")
-        
-        # Operating Systems
-        if daily_data.get('operating_systems'):
-            content.append("### Development Environment")
-            content.append("")
-            for os in daily_data['operating_systems']:
-                content.append(f"- **{os['name']}**: {os['time']} ({os['percentage']})")
-            content.append("")
-        
-        # Weekly stats
-        if stats_data and stats_data.get('daily_average'):
-            content.append("### Weekly Summary")
-            content.append("")
-            content.append(f"- **Daily Average**: {stats_data['daily_average']} hours")
-            if stats_data.get('best_day'):
-                best_day = stats_data['best_day']
-                content.append(f"- **Best Day**: {best_day['date']} ({best_day['time']})")
-            content.append("")
-        
-        content.append(f"*Wakatime data captured on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*")
-        
-        return "\n".join(content)
-    
-    def create_datatable_content(self, github_data: Dict, wakatime_data: Dict) -> str:
+    def create_datatable_content(self, github_data: Dict) -> str:
         """Create comprehensive datatable content"""
         content = []
         content.append("## Development Analytics")
@@ -591,47 +502,21 @@ class UnifiedDataCollector:
         # Summary table
         content.append("### Daily Summary")
         content.append("")
-        content.append("| Metric | GitHub | Wakatime |")
-        content.append("|--------|--------|----------|")
+        content.append("| Metric | GitHub |")
+        content.append("|--------|--------|")
         
         github_commits = github_data.get('commits', 0) if github_data else 0
-        wakatime_time = wakatime_data.get('daily_data', {}).get('total_time', '0h 0m') if wakatime_data else '0h 0m'
         
-        content.append(f"| Commits | {github_commits} | - |")
-        content.append(f"| Coding Time | - | {wakatime_time} |")
-        content.append(f"| Pull Requests | {github_data.get('prs', 0) if github_data else 0} | - |")
-        content.append(f"| Issues | {github_data.get('issues', 0) if github_data else 0} | - |")
+        content.append(f"| Commits | {github_commits} |")
+        content.append(f"| Pull Requests | {github_data.get('prs', 0) if github_data else 0} |")
+        content.append(f"| Issues | {github_data.get('issues', 0) if github_data else 0} |")
         content.append("")
-        
-        # Wakatime detailed tables
-        if wakatime_data and wakatime_data.get('daily_data'):
-            daily_data = wakatime_data['daily_data']
-            
-            # Languages table
-            if daily_data.get('languages'):
-                content.append("### Programming Languages")
-                content.append("")
-                content.append("| Language | Time | Percentage | Seconds |")
-                content.append("|----------|------|------------|---------|")
-                for lang in daily_data['languages']:
-                    content.append(f"| {lang['name']} | {lang['time']} | {lang['percentage']} | {lang['seconds']} |")
-                content.append("")
-            
-            # Projects table
-            if daily_data.get('projects'):
-                content.append("### Active Projects")
-                content.append("")
-                content.append("| Project | Time | Percentage | Seconds |")
-                content.append("|---------|------|------------|---------|")
-                for project in daily_data['projects']:
-                    content.append(f"| {project['name']} | {project['time']} | {project['percentage']} | {project['seconds']} |")
-                content.append("")
         
         content.append(f"*Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*")
         
         return "\n".join(content)
     
-    def update_calendar_entry(self, target_date: date, github_data: Dict, wakatime_data: Dict):
+    def update_calendar_entry(self, target_date: date, github_data: Dict):
         """Update calendar entry with all collected data"""
         try:
             # Create calendar file path
@@ -656,10 +541,9 @@ class UnifiedDataCollector:
             
             # Generate content sections
             github_content = self.format_github_content(github_data)
-            wakatime_content = self.format_wakatime_content(wakatime_data)
-            datatable_content = self.create_datatable_content(github_data, wakatime_data)
+            datatable_content = self.create_datatable_content(github_data)
             
-            # Remove any existing GitHub Activity, Wakatime, and Development Analytics sections
+            # Remove any existing GitHub Activity and Development Analytics sections
             import re
             # Remove from first occurrence of "## GitHub Activity" to the end
             existing_content = re.sub(
@@ -670,7 +554,7 @@ class UnifiedDataCollector:
             )
             
             # Combine all content (replace old sections with new)
-            new_content = existing_content.rstrip() + "\n\n" + github_content + "\n\n" + wakatime_content + "\n\n" + datatable_content
+            new_content = existing_content.rstrip() + "\n\n" + github_content + "\n\n" + datatable_content
             
             # Write updated content
             with open(calendar_file, 'w', encoding='utf-8') as f:
@@ -695,16 +579,18 @@ class UnifiedDataCollector:
                 return False
             
             # Collect GitHub data
-            github_data = self.collect_github_data(target_date)
+            try:
+                github_data = self.collect_github_data(target_date)
+            except PermissionError as e:
+                # Stop the process if we get 403 errors - don't write anything
+                print(str(e))
+                print("\n🛑 Process stopped due to GitHub API access issues.")
+                print("   No calendar files will be written.")
+                return False
             
-            # Collect Wakatime data (only if enabled)
-            wakatime_data = {}
-            if self.config.get('wakatime', {}).get('enabled', False):
-                wakatime_data = self.collect_wakatime_data(target_date)
-            
-            # Update calendar entry
-            if github_data or wakatime_data:
-                success = self.update_calendar_entry(target_date, github_data, wakatime_data)
+            # Update calendar entry only if we have valid data and no errors
+            if github_data:
+                success = self.update_calendar_entry(target_date, github_data)
                 if success:
                     print("✅ Data collection and calendar update completed successfully!")
                     return True
@@ -715,6 +601,12 @@ class UnifiedDataCollector:
                 print("⚠️  No data collected")
                 return False
                 
+        except PermissionError as e:
+            # Re-raise permission errors to stop the process
+            print(str(e))
+            print("\n🛑 Process stopped due to GitHub API access issues.")
+            print("   No calendar files will be written.")
+            return False
         except Exception as e:
             print(f"❌ Data collection failed: {e}")
             return False
@@ -737,8 +629,12 @@ def main():
         since_str, until_str = args.commits_range
         since_dt = datetime.strptime(since_str, '%Y-%m-%d').date()
         until_dt = datetime.strptime(until_str, '%Y-%m-%d').date()
-        summary = fetch_commits_parallel_from_config(args.config, since_dt, until_dt)
-        print(json.dumps(summary, indent=2))
+        try:
+            summary = fetch_commits_parallel_from_config(args.config, since_dt, until_dt)
+            print(json.dumps(summary, indent=2))
+        except PermissionError as e:
+            print(str(e), file=sys.stderr)
+            sys.exit(1)
         return
     
     # Determine target date
