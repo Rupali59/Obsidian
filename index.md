@@ -10,7 +10,7 @@
 
 <table>  <tr><td align="center"><img src="https://github.githubassets.com/images/modules/profile/achievements/pull-shark-default.png" width="48" height="48" alt="Pull Shark" /><b>Pull Shark</b></td><td align="center"><img src="https://github.githubassets.com/images/modules/profile/achievements/galaxy-brain-default.png" width="48" height="48" alt="Galaxy Brain" /><b>Galaxy Brain</b></td><td align="center"><img src="https://github.githubassets.com/images/modules/profile/achievements/yolo-default.png" width="48" height="48" alt="YOLO" /><b>YOLO</b></td><td align="center"><img src="https://github.githubassets.com/images/modules/profile/achievements/quickdraw-default.png" width="48" height="48" alt="Quickdraw" /><b>Quickdraw</b></td><td align="center"><img src="https://github.githubassets.com/images/modules/profile/achievements/pair-extraordinaire-default.png" width="48" height="48" alt="Pair Extraordinaire" /><b>Pair Extraordinaire</b></td><td align="center"><img src="https://github.githubassets.com/images/modules/profile/achievements/starstruck-default.png" width="48" height="48" alt="Starstruck" /><b>Starstruck</b></td><td align="center"><img src="https://github.githubassets.com/images/modules/profile/achievements/public-sponsor-default.png" width="48" height="48" alt="Public Sponsor" /><b>Public Sponsor</b></td><td align="center"><img src="https://github.githubassets.com/images/modules/profile/achievements/arctic-code-vault-contributor-default.png" width="48" height="48" alt="Arctic Code Vault Contributor" /><b>Arctic Code Vault Contributor</b></td><td align="center"><img src="https://github.githubassets.com/images/modules/profile/achievements/mars-2020-contributor-default.png" width="48" height="48" alt="Mars 2020 Contributor" /><b>Mars 2020 Contributor</b></td></tr></table>
 
-![Code Time](http://img.shields.io/badge/Code%20Time-10%20hrs%2010%20mins-blue) ![Profile Views](http://img.shields.io/badge/Profile%20Views-0-blue)
+![Code Time](http://img.shields.io/badge/Code%20Time-10%20hrs%2010%20mins-blue) ![Profile Views](https://komarev.com/ghpvc/?username=Rupali59&style=flat-square&color=blue)
 
 **🐱 My GitHub Data**
 
@@ -18,9 +18,9 @@
 >
 > 💼 Opted to Hire
 >
-> 📜 18 Public Repositories
+> 📜 23 Public Repositories
 >
-> 🔑 3 Private Repositories
+> 👥 15 Followers · 29 Following
 >
 > **I'm an Early 🐤**
 
@@ -81,15 +81,17 @@ HTML                     1 repo              █░░░░░░░░░░�
 
 ![Lines of Code chart](https://raw.githubusercontent.com/Rupali59/Rupali59/main/assets/bar_graph.png)
 
-Last Updated on 10/07/2025 18:51:57 UTC
+Last Updated on 12/23/2025 12:44:00 UTC
 
 ## 👨‍💻 About Me
 
-I'm a passionate **Full-Stack Developer** and **Machine Learning Enthusiast** with expertise in building scalable web applications and intelligent systems. Currently working with **ServiceNow**, I specialize in creating innovative solutions that bridge the gap between traditional software development and cutting-edge AI technologies.
+I'm a passionate **Full-Stack Developer** and **Machine Learning Enthusiast** with expertise in building scalable web applications and intelligent systems. Currently working with **Servicenow** in **Hyderabad**, I specialize in creating innovative solutions that bridge the gap between traditional software development and cutting-edge AI technologies.
 
 ### 🎯 **What I Do**
 
-- 🔭 **Currently working with:** ServiceNow
+- 🔭 **Currently working with:** Servicenow
+- 📍 **Location:** Hyderabad, India
+- 🌐 **Website:** [tathya.dev](https://tathya.dev)
 - 🌱 **Passionate about:** Full-stack development, Machine Learning, and DevOps
 - 💡 **Interests:** AI/ML, Web Development, System Architecture, Problem Solving
 - 🚀 **Goal:** Building impactful solutions that make a difference
@@ -107,6 +109,8 @@ I maintain a comprehensive knowledge base covering various aspects of software d
 
 - **[📚 Notes Hub](Notes/Notes.md)** - Complete knowledge base navigation
 - **[📅 Calendar](Calendar/)** - Daily notes and calendar organization
+  - [2025 Calendar](Calendar/2025/2025.md) - View 2025 monthly calendar
+  - [2024 Calendar](Calendar/2024/2024.md) - View 2024 monthly calendar
 - **[🔧 Scripts](Scripts/)** - Automation and utility scripts
 
 ### 🎯 **Key Learning Areas**
@@ -160,7 +164,7 @@ I maintain a comprehensive knowledge base covering various aspects of software d
 
 ## 💼 Professional Experience
 
-### **ServiceNow** - Full Stack Developer
+### **Servicenow** - Full Stack Developer
 
 _Current Position_
 

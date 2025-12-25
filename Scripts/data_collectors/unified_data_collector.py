@@ -511,7 +511,6 @@ class UnifiedDataCollector:
         content.append(f"| Pull Requests | {github_data.get('prs', 0) if github_data else 0} |")
         content.append(f"| Issues | {github_data.get('issues', 0) if github_data else 0} |")
         content.append("")
-        
         content.append(f"*Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*")
         
         return "\n".join(content)
@@ -582,7 +581,6 @@ class UnifiedDataCollector:
             try:
                 github_data = self.collect_github_data(target_date)
             except PermissionError as e:
-                # Stop the process if we get 403 errors - don't write anything
                 print(str(e))
                 print("\n🛑 Process stopped due to GitHub API access issues.")
                 print("   No calendar files will be written.")
