@@ -613,8 +613,11 @@ def main():
     """Main function"""
     import argparse
     
+    # Construct default config path relative to script location
+    default_config = SCRIPTS_DIR / 'config' / 'unified_data_config.json'
+    
     parser = argparse.ArgumentParser(description='Unified Data Collector')
-    parser.add_argument('--config', default='/Users/rupali.b/Documents/GitHub/Obsidian/Scripts/config/unified_data_config.json', help='Config file path')
+    parser.add_argument('--config', default=str(default_config), help='Config file path')
     parser.add_argument('--date', type=str, help='Specific date (YYYY-MM-DD)')
     parser.add_argument('--today', action='store_true', help='Process today (default)')
     # New parallel commit fetching mode

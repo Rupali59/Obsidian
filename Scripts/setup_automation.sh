@@ -30,9 +30,94 @@ show_usage() {
     echo ""
 }
 
+# Function to update paths in plist file
+update_plist_paths() {
+    local obsidian_path="$(cd "$SCRIPT_DIR/.." && pwd)"
+    
+    # Use Python to update plist XML properly
+    python3 <<PYTHON
+import xml.etree.ElementTree as ET
+import os
+
+obsidian_path = "$obsidian_path"
+plist_path = "$PLIST_FILE"
+
+# Parse XML
+tree = ET.parse(plist_path)
+root = tree.getroot()
+
+# Find the dict element
+dict_elem = root.find('.//dict')
+
+# Function to update string value
+def update_string_value(key_name, new_value):
+    keys = dict_elem.findall('key')
+    for i, key in enumerate(keys):
+        if key.text == key_name:
+            # Next sibling should be the string value
+            if i + 1 < len(dict_elem):
+                string_elem = dict_elem[i + 1]
+                if string_elem.tag == 'string':
+                    string_elem.text = new_value
+                    return True
+    return False
+
+# Update all paths
+update_string_value('Program', os.path.join(obsidian_path, "Scripts/daily_auto_collect.sh"))
+update_string_value('WorkingDirectory', obsidian_path)
+update_string_value('StandardOutPath', os.path.join(obsidian_path, "Scripts/logs/launchd_stdout.log"))
+update_string_value('StandardErrorPath', os.path.join(obsidian_path, "Scripts/logs/launchd_stderr.log"))
+
+# Write back
+tree.write(plist_path, encoding='utf-8', xml_declaration=True)
+
+print(f"✅ Updated plist paths to: {obsidian_path}")
+PYTHON
+}
+
+# Function to update config file paths
+update_config_paths() {
+    local obsidian_path="$(cd "$SCRIPT_DIR/.." && pwd)"
+    local config_file="$obsidian_path/Scripts/config/unified_data_config.json"
+    
+    if [ -f "$config_file" ]; then
+        # Use Python to update JSON (more reliable than sed for JSON)
+        python3 <<PYTHON
+import json
+import sys
+
+config_path = "$config_file"
+obsidian_path = "$obsidian_path"
+
+try:
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+    
+    # Update vault_path
+    if 'obsidian' in config:
+        config['obsidian']['vault_path'] = obsidian_path
+    
+    # Write back
+    with open(config_path, 'w') as f:
+        json.dump(config, f, indent=2)
+    
+    print(f"✅ Updated config vault_path to: {obsidian_path}")
+except Exception as e:
+    print(f"❌ Error updating config: {e}", file=sys.stderr)
+    sys.exit(1)
+PYTHON
+    fi
+}
+
 # Function to install automation
 install_automation() {
     echo "📦 Installing daily automation..."
+    echo ""
+    
+    # Update paths first
+    echo "Updating paths to current location..."
+    update_plist_paths
+    update_config_paths
     echo ""
     
     # Make scripts executable
