@@ -1,10 +1,47 @@
-
-# GitHub configuration (contains sensitive tokens)
-Scripts/github_config.env
-Scripts/*.log
-Scripts/config/github_config.env
+# Sensitive Configuration Files (contains tokens and API keys)
 Scripts/config/unified_data_config.json
-
-*.log
+Scripts/config/github_config.env
+Scripts/github_config.env
 *.env
-*.txt
+
+# Log Files
+*.log
+Scripts/logs/*.log
+Scripts/*.log
+
+# macOS System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+*.swp
+*.swo
+*~
+
+# Temporary Files
+*.tmp
+*.temp
+*.cache
+temp/
+cache/
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Obsidian (keep workspace files but ignore some cache/temp)
+.obsidian/workspace-mobile.json
+.obsidian/hotkeys-mobile.json
+.obsidian/.obsidian/
+
+# Keep template config file and allow *.txt files for notes
+!Scripts/config/unified_data_config.json.template
+!*.txt
+
+# But ignore specific text files that might contain sensitive data
+**/secrets.txt
+**/tokens.txt
+**/api_keys.txt
