@@ -109,6 +109,7 @@ I maintain a comprehensive knowledge base covering various aspects of software d
 
 - **[📚 Notes Hub](Notes/Notes.md)** - Complete knowledge base navigation
 - **[📅 Calendar](Calendar/)** - Daily notes and calendar organization
+  - [2026 Calendar](Calendar/2026/2026.md) - View 2026 monthly calendar
   - [2025 Calendar](Calendar/2025/2025.md) - View 2025 monthly calendar
   - [2024 Calendar](Calendar/2024/2024.md) - View 2024 monthly calendar
 - **[🔧 Scripts](Scripts/)** - Automation and utility scripts
