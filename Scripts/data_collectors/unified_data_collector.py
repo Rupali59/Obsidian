@@ -15,6 +15,13 @@ from pathlib import Path
 from datetime import datetime, date, timedelta
 from typing import Dict, List, Optional, Union
 
+# Try to load python-dotenv if available (for .env file support)
+try:
+    from dotenv import load_dotenv
+    DOTENV_AVAILABLE = True
+except ImportError:
+    DOTENV_AVAILABLE = False
+
 # GitHub API functionality is now integrated directly into this script
 
 class SimpleGitHubCollector:
@@ -292,11 +299,20 @@ def _fetch_repo_commits(owner_repo: str, token: str, since_iso: str, until_iso: 
 
 def fetch_commits_parallel_from_config(config_path: str, since_date: date, until_date: date) -> Dict:
     """Fetch commits in parallel for all repos in config between dates (inclusive)."""
+    # Load environment variables if available
+    if DOTENV_AVAILABLE:
+        env_path = Path(config_path).parent.parent.parent / '.env'
+        if not env_path.exists():
+            env_path = Path(config_path).parent / '.env'
+        if env_path.exists():
+            load_dotenv(env_path)
+    
     with open(config_path, 'r') as f:
         cfg = json.load(f)
     gh_cfg = cfg.get('github', {})
-    token = gh_cfg.get('api_token', '')
-    username = gh_cfg.get('username', '')
+    # Prefer environment variables, fallback to config
+    token = os.getenv('GITHUB_API_TOKEN') or os.getenv('GITHUB_TOKEN') or gh_cfg.get('api_token', '')
+    username = os.getenv('GITHUB_USERNAME') or gh_cfg.get('username', '')
     raw_repos = gh_cfg.get('repositories', [])
     repos = [_normalize_repo_identifier(r, username) for r in raw_repos]
 
@@ -364,6 +380,16 @@ logging.basicConfig(
 
 class UnifiedDataCollector:
     def __init__(self, config_path: str):
+        # Load environment variables from .env file if available
+        if DOTENV_AVAILABLE:
+            # Try loading from .env in the workspace root or script directory
+            env_path = Path(config_path).parent.parent.parent / '.env'
+            if not env_path.exists():
+                env_path = Path(config_path).parent / '.env'
+            if env_path.exists():
+                load_dotenv(env_path)
+                logging.info(f"Loaded environment variables from {env_path}")
+        
         self.config_path = Path(config_path)
         self.config = self._load_config()
         self.obsidian_path = Path(self.config['obsidian']['vault_path'])
@@ -373,10 +399,24 @@ class UnifiedDataCollector:
         # Initialize collectors
         self.github_collector = None
         
-        # GitHub configuration from unified config
+        # GitHub configuration - prefer environment variables, fallback to config
         self.github_config = self.config.get('github', {})
-        self.github_token = self.github_config.get('api_token', '')
-        self.github_username = self.github_config.get('username', '')
+        # Check environment variables first, then config file
+        self.github_token = os.getenv('GITHUB_API_TOKEN') or os.getenv('GITHUB_TOKEN') or self.github_config.get('api_token', '')
+        self.github_username = os.getenv('GITHUB_USERNAME') or self.github_config.get('username', '')
+        
+        # Wakatime configuration - prefer environment variables, fallback to config
+        wakatime_config = self.config.get('wakatime', {})
+        wakatime_api_key = os.getenv('WAKATIME_API_KEY') or wakatime_config.get('api_key', '')
+        if wakatime_api_key and wakatime_api_key != 'YOUR_WAKATIME_API_KEY_HERE':
+            wakatime_config['api_key'] = wakatime_api_key
+        
+        # Obsidian vault path can also come from env
+        obsidian_vault_path = os.getenv('OBSIDIAN_VAULT_PATH')
+        if obsidian_vault_path:
+            self.obsidian_path = Path(obsidian_vault_path)
+            self.calendar_path = self.obsidian_path / "Calendar"
+            self.config['obsidian']['vault_path'] = obsidian_vault_path
         
         print(f"🚀 Unified Data Collector initialized")
         print(f"📁 Obsidian path: {self.obsidian_path}")

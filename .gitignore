@@ -3,6 +3,8 @@ Scripts/config/unified_data_config.json
 Scripts/config/github_config.env
 Scripts/github_config.env
 *.env
+# Allow .env.example template (contains no secrets)
+!.env.example
 
 # Log Files
 *.log
@@ -31,6 +33,8 @@ cache/
 .idea/
 *.sublime-project
 *.sublime-workspace
+# Cursor settings (contains sensitive environment variables)
+.cursor/settings.json
 
 # Obsidian (keep workspace files but ignore some cache/temp)
 .obsidian/workspace-mobile.json

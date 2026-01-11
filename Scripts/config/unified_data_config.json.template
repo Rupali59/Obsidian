@@ -9,7 +9,9 @@
   "github": {
     "enabled": true,
     "api_token": "YOUR_GITHUB_TOKEN_HERE",
+    "_comment_api_token": "Can also be set via GITHUB_API_TOKEN or GITHUB_TOKEN environment variable",
     "username": "YOUR_GITHUB_USERNAME",
+    "_comment_username": "Can also be set via GITHUB_USERNAME environment variable",
     "repositories": [
       "YOUR_USERNAME/repo1",
       "YOUR_USERNAME/repo2",
@@ -26,6 +28,7 @@
   "wakatime": {
     "enabled": false,
     "api_key": "YOUR_WAKATIME_API_KEY_HERE",
+    "_comment_api_key": "Can also be set via WAKATIME_API_KEY environment variable",
     "dashboard_url": "https://wakatime.com/dashboard",
     "data_collection_method": "api_primary",
     "fallback_method": "dashboard_scraping",
@@ -56,6 +59,7 @@
   },
   "obsidian": {
     "vault_path": "/path/to/your/obsidian/vault",
+    "_comment_vault_path": "Can also be set via OBSIDIAN_VAULT_PATH environment variable",
     "calendar_structure": "Calendar/{year}/{month}/{day}-{month}-{year}.md",
     "data_integration": {
       "github_section": "## GitHub Activity",
