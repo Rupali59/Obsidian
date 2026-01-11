@@ -10,6 +10,7 @@ import sys
 import json
 import logging
 import requests
+import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from datetime import datetime, date, timedelta
@@ -345,6 +346,58 @@ def fetch_commits_parallel_from_config(config_path: str, since_date: date, until
     }
     return summary
 
+# -------- Local git commit fetching (no GitHub/config dependency) --------
+
+def collect_local_git_commits(repo_path: Union[str, Path], target_date: date) -> List[Dict]:
+    """
+    Collect commits from a local git repository for a single day.
+    Returns a list of commits with sha/title/author/date.
+    """
+    repo_path = str(repo_path)
+    since = f"{target_date.isoformat()} 00:00:00"
+    until = f"{target_date.isoformat()} 23:59:59"
+
+    # Use record/field separators to make parsing robust
+    pretty = "%H%x1f%s%x1f%an%x1f%ad%x1e"
+    cmd = [
+        "git", "-C", repo_path,
+        "log",
+        f"--since={since}",
+        f"--until={until}",
+        "--date=iso-strict",
+        f"--pretty=format:{pretty}",
+    ]
+
+    try:
+        proc = subprocess.run(cmd, check=False, capture_output=True, text=True)
+    except Exception as e:
+        return [{"error": f"Failed to execute git: {e}", "repository": repo_path}]
+
+    if proc.returncode != 0:
+        err = (proc.stderr or "").strip()
+        return [{"error": f"git log failed: {err or 'unknown error'}", "repository": repo_path}]
+
+    raw = proc.stdout
+    commits: List[Dict] = []
+    for rec in raw.split("\x1e"):
+        rec = rec.strip()
+        if not rec:
+            continue
+        parts = rec.split("\x1f")
+        if len(parts) < 4:
+            continue
+        sha, title, author, commit_date = parts[0], parts[1], parts[2], parts[3]
+        commits.append(
+            {
+                "sha": sha,
+                "short_sha": sha[:7] if sha else "",
+                "title": title,
+                "author": author,
+                "date": commit_date,
+            }
+        )
+    return commits
+
 # Configure logging
 # Get the Scripts directory (parent of data_collectors)
 SCRIPTS_DIR = Path(__file__).parent.parent
@@ -622,8 +675,27 @@ def main():
     parser.add_argument('--today', action='store_true', help='Process today (default)')
     # New parallel commit fetching mode
     parser.add_argument('--commits-range', nargs=2, metavar=('SINCE','UNTIL'), help='Fetch commit titles/descriptions for all repos between dates (YYYY-MM-DD YYYY-MM-DD)')
+    # Local git mode (works without config / GitHub token)
+    parser.add_argument('--local-git', action='store_true', help='Collect commits from a local git repository for the specified date')
+    parser.add_argument('--repo-path', type=str, default=str(Path.cwd()), help='Local git repository path (used with --local-git)')
     
     args = parser.parse_args()
+
+    # Local git mode: print JSON summary and exit
+    if args.local_git:
+        if args.date:
+            target_date = datetime.strptime(args.date, '%Y-%m-%d').date()
+        else:
+            target_date = date.today()
+        commits = collect_local_git_commits(args.repo_path, target_date)
+        summary = {
+            "date": target_date.isoformat(),
+            "repository_path": str(Path(args.repo_path)),
+            "commit_count": len([c for c in commits if "error" not in c]),
+            "commits": commits,
+        }
+        print(json.dumps(summary, indent=2))
+        return
     
     # If commits-range provided, run parallel fetch and print JSON to stdout
     if args.commits_range:
