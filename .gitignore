@@ -49,3 +49,5 @@ cache/
 **/secrets.txt
 **/tokens.txt
 **/api_keys.txt
+.obsidian/icons/
+

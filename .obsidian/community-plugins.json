@@ -1,3 +1,6 @@
 [
-  "cursor-bridge"
+  "cursor-bridge",
+  "obsidian-icon-shortcodes",
+  "templater-obsidian",
+  "copilot"
 ]

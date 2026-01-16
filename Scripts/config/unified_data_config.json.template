@@ -91,6 +91,16 @@
       "time": "18:00"
     }
   },
+  "protocol_tracking": {
+    "enabled": true,
+    "description": "Tracks adherence to Containment & Failure Protocol in daily calendar entries",
+    "analysis_points": [
+      "early_warning_signals",
+      "protocol_violations",
+      "adherence_score",
+      "recommendations"
+    ]
+  },
   "logging": {
     "level": "INFO",
     "file": "Scripts/logs/unified_data_collection.log",

@@ -19,6 +19,7 @@ Experienced software engineer with a passion for building innovative solutions a
 **📍 Location:** Hyderabad, India  
 **🌐 Website:** [tathya.dev](https://tathya.dev)  
 **💻 GitHub:** [@Rupali59](https://github.com/Rupali59)
+[Wakatime](https://wakatime.com/a-look-back-at-2025/ecb9d56b-2245-4c1f-9d7c-158bf2339ec0/wyegbfwdza)
 
 ---
 
