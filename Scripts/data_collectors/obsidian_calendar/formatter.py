@@ -1,47 +1,187 @@
 """
 Calendar formatter - formats GitHub data and analytics for calendar entries
+
+NOTE: This formatter generates human-readable markdown format.
+For manual edits, update files directly - the formatter will preserve manual sections.
+The generated format matches the reference format in Calendar/2026/January/01-01-2026.md
 """
 
 import json
+import re
 import tempfile
-from datetime import datetime, time
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple
-
-from ..utils.helpers import calculate_project_switches
-
-# Daily schedule time blocks from COMMAND & CONTAINMENT PROTOCOL.md
-TIME_BLOCKS = [
-    ("6:30-7:00", time(6, 30), time(7, 0), "Wake + Body Priming"),
-    ("7:00-8:00", time(7, 0), time(8, 0), "Primary Work Block 1 (Deep, Dry)"),
-    ("8:00-8:30", time(8, 0), time(8, 30), "Transition + Fuel"),
-    ("8:30-11:30", time(8, 30), time(11, 30), "Primary Work Block 2 (Execution)"),
-    ("11:30-12:00", time(11, 30), time(12, 0), "Mechanical Reset"),
-    ("12:00-2:00", time(12, 0), time(14, 0), "Office / Obligation Work"),
-    ("2:00-2:30", time(14, 0), time(14, 30), "Lunch (Neutral)"),
-    ("2:30-4:30", time(14, 30), time(16, 30), "Secondary Work Block (Lower Friction)"),
-    ("4:30-5:00", time(16, 30), time(17, 0), "Dead Zone (Intentional Neutrality)"),
-    ("5:00-6:00", time(17, 0), time(18, 0), "Optional Creative / Technical Output"),
-    ("6:00-7:30", time(18, 0), time(19, 30), "Deep Craft (Bounded)"),
-    ("7:30-8:00", time(19, 30), time(20, 0), "Dinner (Silent / Neutral)"),
-    ("8:00-8:30", time(20, 0), time(20, 30), "Consolidation + Decompression"),
-    ("8:30-9:00", time(20, 30), time(21, 0), "Nightly Truth Audit"),
-    ("9:00-10:00", time(21, 0), time(22, 0), "Wind-Down"),
-    ("10:00+", time(22, 0), None, "Sleep"),
-]
+from typing import Dict, List
 
 
-def get_time_block_for_time(commit_time: time) -> Tuple[str, str]:
-    """Get the time block label and name for a given time"""
-    for block_label, start_time, end_time, block_name in TIME_BLOCKS:
-        if end_time is None:  # Last block (10:00+)
-            if commit_time >= start_time:
-                return block_label, block_name
+def get_project_description(repo_name: str) -> str:
+    """Generate a human-readable project description from repository name"""
+    descriptions = {
+        'Rupali59': 'Personal profile repository',
+        'Jira_tracker': 'Multi-repository Jira synchronization tool',
+        'Motherboard-server': 'Backend server for Motherboard application',
+        'MotherBoard': 'Main Motherboard application',
+        'Motherboard-billing-service': 'Billing service with multi-provider support',
+        'tathya-portfolio': 'Portfolio website',
+        'Obsidian': 'Personal knowledge management vault',
+        'WorkTracker': 'Development activity tracking and visualization platform',
+        'Email-Plugin': 'Email plugin for Motherboard platform',
+        'SMS-Plugin': 'SMS plugin for Motherboard platform',
+        'WhatsApp-Plugin': 'WhatsApp plugin for Motherboard platform',
+        'VipinKaushik': 'Vipin Kaushik project repository',
+        'Utility-mb': 'Utility service with Motherboard integration',
+    }
+    
+    # Check for exact match
+    if repo_name in descriptions:
+        return descriptions[repo_name]
+    
+    # Check for -mb suffix (Motherboard integration projects)
+    if repo_name.endswith('-mb'):
+        client_name = repo_name[:-3].replace('-', ' ')
+        return f'Motherboard integration for {client_name}'
+    
+    # Default: capitalize and add "project"
+    return f'{repo_name.replace("-", " ").title()} project'
+
+
+def infer_focus_from_commits(commits: List[Dict]) -> str:
+    """Infer focus area from commit messages"""
+    if not commits:
+        return 'Development'
+    
+    # Analyze commit messages for common patterns
+    messages = [c.get('message', '').lower() for c in commits]
+    all_text = ' '.join(messages)
+    
+    focus_keywords = {
+        'infrastructure': ['infrastructure', 'deployment', 'config', 'setup', 'scaffold', 'environment'],
+        'feature development': ['feat', 'feature', 'implement', 'add', 'create'],
+        'design': ['design', 'theme', 'ui', 'ux', 'visual', 'aesthetic'],
+        'bug fixes': ['fix', 'bug', 'error', 'issue', 'resolve'],
+        'refactoring': ['refactor', 'restructure', 'cleanup', 'standardize'],
+        'maintenance': ['chore', 'update', 'maintain', 'dependencies'],
+        'documentation': ['docs', 'documentation', 'readme'],
+    }
+    
+    for focus, keywords in focus_keywords.items():
+        if any(keyword in all_text for keyword in keywords):
+            return focus.title()
+    
+    return 'Development'
+
+
+def format_commit_as_work_detail(commit: Dict) -> str:
+    """Convert a commit message to a human-readable work detail"""
+    message = commit.get('message', 'No message')
+    
+    # Remove common prefixes (feat:, fix:, chore:, etc.)
+    message = re.sub(r'^(feat|fix|chore|refactor|docs|style|test|perf|ci|build|revert):\s*', '', message, flags=re.IGNORECASE)
+    message = message.strip()
+    
+    # Capitalize first letter
+    if message:
+        message = message[0].upper() + message[1:]
+    
+    return message
+
+
+def generate_work_details(commits: List[Dict]) -> List[str]:
+    """Generate work details from commits, grouping similar ones"""
+    if not commits:
+        return []
+    
+    work_details = []
+    
+    # Group commits by type/pattern
+    grouped = {}
+    individual_commits = []
+    
+    for commit in commits:
+        message = commit.get('message', '').lower()
+        detail = format_commit_as_work_detail(commit)
+        
+        # Try to group similar commits
+        key = None
+        description = None
+        
+        if 'gitignore' in message or ('environment' in message and 'management' in message):
+            key = 'Environment Configuration'
+            description = 'Updated gitignore for environment management'
+        elif 'scaffold' in message or 'initial commit' in message:
+            key = 'Project Scaffolding'
+            if 'motherboard' in message:
+                description = 'Initialized project with Motherboard integration scaffold'
+            else:
+                description = 'Created initial project structure'
+        elif 'dependencies' in message or 'install' in message:
+            key = 'Dependency Management'
+            description = 'Installed and configured project dependencies'
+        elif 'merge' in message and 'branch' in message:
+            key = 'Branch Management'
+            branch = re.search(r"branch ['\"]?(\w+)['\"]?", message)
+            branch_name = branch.group(1) if branch else 'development'
+            description = f'Merged {branch_name} branch to integrate latest changes'
+        elif 'update' in message and ('config' in message or 'assets' in message):
+            key = 'Configuration Updates'
+            description = 'Updated assets and configurations for improved management'
+        elif 'refactor' in message or 'standardize' in message:
+            key = 'Structure Standardization'
+            if 'architecture' in message:
+                description = 'Refactored project structure to feature-based architecture'
+            else:
+                description = 'Standardized project structure and organization'
+        elif 'feat' in message or 'implement' in message:
+            # Extract feature name from commit message
+            feat_match = re.search(r'(?:feat|implement)[\s:]+(.+?)(?:$|\.|,|\(|\[)', message, re.IGNORECASE)
+            if feat_match:
+                feat_desc = feat_match.group(1).strip()
+                key = 'Feature Implementation'
+                description = f'Implemented {feat_desc}'
+            else:
+                individual_commits.append(commit)
+                continue
+        elif 'fix' in message:
+            fix_match = re.search(r'fix[\s:]+(.+?)(?:$|\.|,|\(|\[)', message, re.IGNORECASE)
+            if fix_match:
+                fix_desc = fix_match.group(1).strip()
+                key = 'Bug Fixes'
+                description = f'Fixed {fix_desc}'
+            else:
+                individual_commits.append(commit)
+                continue
         else:
-            if start_time <= commit_time < end_time:
-                return block_label, block_name
-    # Fallback for times before 6:30 (before wake time) - assign to first block
-    return TIME_BLOCKS[0][0], TIME_BLOCKS[0][3]  # Return first block (6:30-7:00)
+            individual_commits.append(commit)
+            continue
+        
+        if key:
+            if key not in grouped:
+                grouped[key] = {'description': description, 'count': 0}
+            grouped[key]['count'] += 1
+    
+    # Add grouped work details
+    for key, info in grouped.items():
+        if info['count'] == 1:
+            work_details.append(f"- **{key}**: {info['description']}")
+        else:
+            work_details.append(f"- **{key}**: {info['description']} ({info['count']} commits)")
+    
+    # Add individual commits (limit to most important ones)
+    for commit in individual_commits[:5]:
+        detail = format_commit_as_work_detail(commit)
+        # Extract meaningful key from detail
+        if ':' in detail:
+            key, desc = detail.split(':', 1)
+            key = key.strip()
+            desc = desc.strip()
+        else:
+            words = detail.split()
+            key = words[0] if words else 'Work'
+            desc = detail
+        
+        work_details.append(f"- **{key}**: {desc}")
+    
+    return work_details[:10]  # Limit to 10 work details
 
 
 class CalendarFormatter:
@@ -52,30 +192,26 @@ class CalendarFormatter:
         if not github_data:
             return ""
         
-        # Calculate project switches
-        project_switches = calculate_project_switches(github_data)
-        
         content = []
         content.append("## 🚀 GitHub Activity")
-        content.append("")
-        activity_summary = f"**Activity Summary:** {github_data['commits']} commits, {github_data['prs']} PRs, {github_data['issues']} issues"
-        if project_switches > 0:
-            activity_summary += f", {project_switches} project switch{'es' if project_switches != 1 else ''}"
-        content.append(activity_summary)
         content.append("")
         
         # Development Summary
         content.append("### Development Summary")
         content.append("")
-        content.append("**🔧 Components Worked On:**")
+        content.append("**🔧 Projects Worked On:**")
         content.append("")
         
         # Process repositories and group commits by time blocks
         repo_stats = {}
         
         # Collect all commits with repository info and store in temp file
+        # Exclude Rupali59 repository (profile maintenance only)
         all_commits_data = []
         for repo_name, repo_metrics in github_data.get('repository_details', {}).items():
+            # Skip Rupali59 repository
+            if repo_name == 'Rupali59':
+                continue
             if repo_metrics.get('commits', 0) > 0 or repo_metrics.get('prs', 0) > 0 or repo_metrics.get('issues', 0) > 0:
                 repo_stats[repo_name] = {
                     'commits': repo_metrics.get('commits', 0),
@@ -127,142 +263,48 @@ class CalendarFormatter:
         repo_first_commits.sort(key=lambda x: x[1])
         repo_order = [repo_name for repo_name, _ in repo_first_commits]
         
-        # Format each repository
+        # Format each repository with numbered projects
+        project_number = 1
         for repo_name in repo_order:
             if repo_name not in repo_stats:
                 continue
             stats = repo_stats[repo_name]
-            content.append(f"#### **{repo_name}**")
-            content.append(f"- **Commits**: {stats['commits']}")
-            content.append(f"- **Pull Requests**: {stats['prs']}")
-            content.append(f"- **Issues**: {stats['issues']}")
-            
-            # Group commits by time blocks (from sorted data)
             commits = repos_with_commits.get(repo_name, [])
-            if commits:
-                # Parse timestamps and group by time block
-                commits_with_time = []
-                for commit in commits:
-                    timestamp = commit.get('timestamp', '')
-                    commit_time_obj = None
-                    if timestamp:
-                        try:
-                            if timestamp.endswith('Z'):
-                                timestamp_clean = timestamp.replace('Z', '+00:00')
-                            else:
-                                timestamp_clean = timestamp
-                            dt = datetime.fromisoformat(timestamp_clean)
-                            commit_time_obj = dt.time()
-                        except (ValueError, AttributeError, TypeError):
-                            pass
-                    
-                    if commit_time_obj:
-                        block_label, block_name = get_time_block_for_time(commit_time_obj)
-                        commits_with_time.append((block_label, block_name, commit_time_obj, commit))
-                    else:
-                        commits_with_time.append(("Other", "Other Time", None, commit))
-                
-                # Sort commits chronologically
-                commits_with_time.sort(key=lambda x: (x[2] if x[2] else time(0, 0), x[3].get('timestamp', '')))
-                
-                # Group by time block
-                time_block_groups = {}
-                for block_label, block_name, commit_time, commit in commits_with_time:
-                    if block_label not in time_block_groups:
-                        time_block_groups[block_label] = {
-                            'name': block_name,
-                            'commits': []
-                        }
-                    time_block_groups[block_label]['commits'].append(commit)
-                
-                # Format commits grouped by time blocks (in schedule order)
-                if time_block_groups:
-                    content.append("")
-                    content.append("**📝 Commits by Time Block:**")
-                    content.append("")
-                    
-                    # Display time blocks in schedule order
-                    displayed_blocks = set()
-                    for block_label, start_time, end_time, block_name in TIME_BLOCKS:
-                        if block_label in time_block_groups and block_label not in displayed_blocks:
-                            displayed_blocks.add(block_label)
-                            group = time_block_groups[block_label]
-                            content.append(f"**{block_label}: {group['name']}**")
-                            content.append("")
-                            
-                            for commit in group['commits']:
-                                sha = commit.get('sha', 'unknown')
-                                message = commit.get('message', 'No message')
-                                url = commit.get('url', '')
-                                timestamp = commit.get('timestamp', '')
-                                
-                                # Format timestamp if available
-                                time_str = ""
-                                if timestamp:
-                                    try:
-                                        if timestamp.endswith('Z'):
-                                            timestamp_clean = timestamp.replace('Z', '+00:00')
-                                        else:
-                                            timestamp_clean = timestamp
-                                        dt = datetime.fromisoformat(timestamp_clean)
-                                        time_str = f" *({dt.strftime('%H:%M:%S')})*"
-                                    except (ValueError, AttributeError, TypeError):
-                                        try:
-                                            if 'T' in timestamp:
-                                                time_part = timestamp.split('T')[1].split('.')[0].split('+')[0].split('-')[0]
-                                                time_str = f" *({time_part})*"
-                                        except:
-                                            pass
-                                
-                                if url:
-                                    content.append(f"- [`{sha}`]({url}) {message}{time_str}")
-                                else:
-                                    content.append(f"- `{sha}` {message}{time_str}")
-                            
-                            content.append("")
-                    
-                    # Handle any commits in "Other" time block (shouldn't normally happen)
-                    if "Other" in time_block_groups and "Other" not in displayed_blocks:
-                        group = time_block_groups["Other"]
-                        content.append(f"**Other Time: {group['name']}**")
-                        content.append("")
-                        for commit in group['commits']:
-                            sha = commit.get('sha', 'unknown')
-                            message = commit.get('message', 'No message')
-                            url = commit.get('url', '')
-                            timestamp = commit.get('timestamp', '')
-                            
-                            time_str = ""
-                            if timestamp:
-                                try:
-                                    if timestamp.endswith('Z'):
-                                        timestamp_clean = timestamp.replace('Z', '+00:00')
-                                    else:
-                                        timestamp_clean = timestamp
-                                    dt = datetime.fromisoformat(timestamp_clean)
-                                    time_str = f" *({dt.strftime('%H:%M:%S')})*"
-                                except (ValueError, AttributeError, TypeError):
-                                    try:
-                                        if 'T' in timestamp:
-                                            time_part = timestamp.split('T')[1].split('.')[0].split('+')[0].split('-')[0]
-                                            time_str = f" *({time_part})*"
-                                    except:
-                                        pass
-                            
-                            if url:
-                                content.append(f"- [`{sha}`]({url}) {message}{time_str}")
-                            else:
-                                content.append(f"- `{sha}` {message}{time_str}")
-                        content.append("")
             
+            # Get project description and focus
+            project_desc = get_project_description(repo_name)
+            focus = infer_focus_from_commits(commits)
+            
+            # Format project header
+            content.append(f"#### **{project_number}. {repo_name}**")
+            content.append(f"*{project_desc}*")
             content.append("")
+            content.append(f"- **Commits**: {stats['commits']}")
+            if stats['prs'] > 0:
+                content.append(f"- **Pull Requests**: {stats['prs']}")
+            if stats['issues'] > 0:
+                content.append(f"- **Issues**: {stats['issues']}")
+            content.append(f"- **Focus**: {focus}")
+            content.append("")
+            
+            # Generate work details from commits
+            if commits:
+                content.append("**Work Details:**")
+                work_details = generate_work_details(commits)
+                for detail in work_details:
+                    content.append(detail)
+                content.append("")
+            
+            project_number += 1
         
         return "\n".join(content)
     
     def create_datatable_content(self, github_data: Dict) -> str:
         """Create comprehensive datatable content"""
         content = []
-        content.append("## Development Analytics")
+        content.append("---")
+        content.append("")
+        content.append("## 📈 Development Analytics")
         content.append("")
         
         # Summary table
@@ -273,10 +315,70 @@ class CalendarFormatter:
         
         github_commits = github_data.get('commits', 0) if github_data else 0
         
-        content.append(f"| Commits | {github_commits} |")
-        content.append(f"| Pull Requests | {github_data.get('prs', 0) if github_data else 0} |")
-        content.append(f"| Issues | {github_data.get('issues', 0) if github_data else 0} |")
+        content.append(f"| **Commits** | {github_commits} |")
+        content.append(f"| **Pull Requests** | {github_data.get('prs', 0) if github_data else 0} |")
+        content.append(f"| **Issues** | {github_data.get('issues', 0) if github_data else 0} |")
         content.append("")
-        content.append(f"*Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*")
+        
+        # Generate Technical Insights
+        content.append("### Technical Insights")
+        content.append("")
+        
+        # Analyze work patterns
+        work_patterns = []
+        highlights = []
+        
+        repo_details = github_data.get('repository_details', {})
+        all_commits = []
+        for repo_name, repo_metrics in repo_details.items():
+            # Exclude Rupali59 repository from analysis
+            if repo_name == 'Rupali59':
+                continue
+            all_commits.extend(repo_metrics.get('commit_details', []))
+        
+        # Analyze commit messages for patterns
+        if all_commits:
+            messages = [c.get('message', '').lower() for c in all_commits]
+            all_text = ' '.join(messages)
+            
+            # Detect work patterns
+            if any(kw in all_text for kw in ['scaffold', 'initial commit', 'setup']):
+                work_patterns.append("Project initialization and scaffolding activities")
+            if any(kw in all_text for kw in ['feat', 'feature', 'implement']):
+                work_patterns.append("Feature development and implementation")
+            if any(kw in all_text for kw in ['refactor', 'restructure', 'standardize']):
+                work_patterns.append("Code refactoring and structure improvements")
+            if any(kw in all_text for kw in ['config', 'environment', 'gitignore']):
+                work_patterns.append("Configuration and environment management")
+            if any(kw in all_text for kw in ['fix', 'bug', 'error', 'resolve']):
+                work_patterns.append("Bug fixes and issue resolution")
+            
+            # Generate highlights
+            repo_count = len([r for r in repo_details.keys() if r != 'Rupali59' and repo_details[r].get('commits', 0) > 0])
+            if repo_count > 1:
+                highlights.append(f"Active development across {repo_count} repositories")
+            if github_data.get('prs', 0) > 0:
+                highlights.append(f"{github_data.get('prs', 0)} pull request{'s' if github_data.get('prs', 0) != 1 else ''} merged")
+            if github_data.get('commits', 0) > 10:
+                highlights.append("High commit activity indicating productive development session")
+        
+        # Default patterns if none detected
+        if not work_patterns:
+            work_patterns.append("Development activity across multiple projects")
+        
+        if not highlights:
+            highlights.append("Continued development and project maintenance")
+        
+        content.append("**🔍 Work Patterns:**")
+        for pattern in work_patterns[:3]:  # Limit to 3 patterns
+            content.append(f"- {pattern}")
+        content.append("")
+        
+        content.append("**🛠️ Highlights:**")
+        for highlight in highlights[:4]:  # Limit to 4 highlights
+            content.append(f"- {highlight}")
+        content.append("")
+        
+        content.append(f"*Generated on {datetime.now().strftime('%Y-%m-%d')}*")
         
         return "\n".join(content)

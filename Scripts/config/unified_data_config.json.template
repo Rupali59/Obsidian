@@ -2,7 +2,7 @@
   "metadata": {
     "name": "Unified Data Collection Configuration",
     "version": "1.0.0",
-    "description": "Configuration for GitHub and Wakatime data collection with Obsidian integration",
+    "description": "Configuration for GitHub data collection with Obsidian integration",
     "last_updated": "2025-09-15",
     "author": "Rupali"
   },
@@ -25,45 +25,12 @@
       "repositories"
     ]
   },
-  "wakatime": {
-    "enabled": false,
-    "api_key": "YOUR_WAKATIME_API_KEY_HERE",
-    "_comment_api_key": "Can also be set via WAKATIME_API_KEY environment variable",
-    "dashboard_url": "https://wakatime.com/dashboard",
-    "data_collection_method": "api_primary",
-    "fallback_method": "dashboard_scraping",
-    "api_endpoints": {
-      "summaries": "https://wakatime.com/api/v1/users/current/summaries",
-      "stats": "https://wakatime.com/api/v1/users/current/stats",
-      "all_time": "https://wakatime.com/api/v1/users/current/all_time_since_today"
-    },
-    "data_points": [
-      "total_coding_time",
-      "languages",
-      "projects", 
-      "editors",
-      "operating_systems",
-      "coding_streak",
-      "daily_average",
-      "best_day",
-      "categories"
-    ],
-    "screenshot_widgets": [
-      "languages_chart",
-      "projects_chart", 
-      "editors_chart",
-      "daily_activity",
-      "coding_streak",
-      "time_distribution"
-    ]
-  },
   "obsidian": {
     "vault_path": "/path/to/your/obsidian/vault",
     "_comment_vault_path": "Can also be set via OBSIDIAN_VAULT_PATH environment variable",
     "calendar_structure": "Calendar/{year}/{month}/{day}-{month}-{year}.md",
     "data_integration": {
       "github_section": "## GitHub Activity",
-      "wakatime_section": "## Wakatime Activity", 
       "datatable_section": "## Development Analytics"
     },
     "datatable_config": {

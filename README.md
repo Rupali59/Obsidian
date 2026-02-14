@@ -69,17 +69,22 @@ Edit `Scripts/config/unified_data_config.json`:
 
 Collect data for a specific date:
 ```bash
-python3 Scripts/data_collectors/unified_data_collector.py --date 2026-01-10
+python3 Scripts/data_collectors/main.py --config Scripts/config/unified_data_config.json --date 2026-01-10
+```
+
+Or use the launcher:
+```bash
+bash Scripts/run_data_collection.sh 2026-01-10
 ```
 
 Collect data for today:
 ```bash
-python3 Scripts/data_collectors/unified_data_collector.py --today
+python3 Scripts/data_collectors/main.py --config Scripts/config/unified_data_config.json --today
 ```
 
 Fetch commits in a date range:
 ```bash
-python3 Scripts/data_collectors/unified_data_collector.py --commits-range 2026-01-01 2026-01-10
+python3 Scripts/data_collectors/main.py --config Scripts/config/unified_data_config.json --commits-range 2026-01-01 2026-01-10
 ```
 
 ### Automated Collection
@@ -116,7 +121,7 @@ Example entry format:
 
 ## 🛠️ Scripts
 
-- **`unified_data_collector.py`**: Main data collection script
+- **`main.py`**: Main data collection script (data_collectors module)
 - **`daily_auto_collect.sh`**: Daily automated collection wrapper
 - **`setup_automation.sh`**: Automation setup and management
 - **`run_data_collection.sh`**: Manual data collection launcher

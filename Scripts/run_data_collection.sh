@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Main Data Collection Launcher
-# Unified system for GitHub and Wakatime data collection
+# Unified system for GitHub data collection
 
 echo "🚀 Data Collection System"
 echo "========================="
@@ -10,7 +10,7 @@ echo ""
 # Get the Obsidian vault path
 OBSIDIAN_PATH="$(cd "$(dirname "$0")/.." && pwd)"
 CONFIG_PATH="$OBSIDIAN_PATH/Scripts/config/unified_data_config.json"
-COLLECTOR_PATH="$OBSIDIAN_PATH/Scripts/data_collectors/unified_data_collector.py"
+COLLECTOR_PATH="$OBSIDIAN_PATH/Scripts/data_collectors/main.py"
 
 echo "📁 Obsidian path: $OBSIDIAN_PATH"
 echo "⚙️  Config file: $CONFIG_PATH"
@@ -27,7 +27,7 @@ fi
 backfill_range() {
     local start_date=$1
     local end_date=$2
-    local parallel_jobs=${3:-4}  # Default to 4 parallel jobs
+    local parallel_jobs=${3:-8}  # Default to 8 parallel jobs for better performance
     
     echo "📅 Backfilling from $start_date to $end_date (${parallel_jobs} parallel jobs)"
     echo ""
@@ -108,30 +108,31 @@ elif [ "$1" = "today" ]; then
     
 elif [ "$1" = "october" ]; then
     echo "📅 Backfilling October 2025"
-    PARALLEL_JOBS=${2:-4}
+    PARALLEL_JOBS=${2:-8}
     backfill_range "2025-10-01" "2025-10-31" "$PARALLEL_JOBS"
     
 elif [ "$1" = "november" ]; then
     echo "📅 Backfilling November 2025"
     YESTERDAY=$(date -v-1d '+%Y-%m-%d' 2>/dev/null || date -d 'yesterday' '+%Y-%m-%d')
-    PARALLEL_JOBS=${2:-4}
+    PARALLEL_JOBS=${2:-8}
     backfill_range "2025-11-01" "$YESTERDAY" "$PARALLEL_JOBS"
     
 elif [ "$1" = "oct-nov" ] || [ "$1" = "backfill" ]; then
     echo "📅 Backfilling October and November 2025"
     YESTERDAY=$(date -v-1d '+%Y-%m-%d' 2>/dev/null || date -d 'yesterday' '+%Y-%m-%d')
-    PARALLEL_JOBS=${2:-4}
+    PARALLEL_JOBS=${2:-8}
     backfill_range "2025-10-01" "$YESTERDAY" "$PARALLEL_JOBS"
     
 elif [ "$1" = "range" ]; then
     if [ $# -eq 3 ]; then
-        echo "📅 Backfilling custom range with 4 parallel jobs"
-        backfill_range "$2" "$3" 4
+        echo "📅 Backfilling custom range with 8 parallel jobs (default)"
+        backfill_range "$2" "$3" 8
     elif [ $# -eq 4 ]; then
         echo "📅 Backfilling custom range with $4 parallel jobs"
         backfill_range "$2" "$3" "$4"
     else
         echo "❌ Usage: $0 range START_DATE END_DATE [PARALLEL_JOBS]"
+        echo "   Default: 8 parallel jobs"
         exit 1
     fi
     

@@ -7,6 +7,12 @@ from datetime import date
 from pathlib import Path
 from typing import Dict, Optional
 
+from .formatter import CalendarFormatter
+
+
+class CalendarUpdater:
+    """Updates calendar entries with collected data"""
+    
     def __init__(self, calendar_path: Path):
         self.calendar_path = Path(calendar_path)
         self.formatter = CalendarFormatter()
@@ -70,6 +76,13 @@ from typing import Dict, Optional
                 existing_content,
                 flags=re.DOTALL
             )
+            existing_content = re.sub(
+                r'\n## 📈 Development Analytics.*?(?=\n## |\Z)',
+                '',
+                existing_content,
+                flags=re.DOTALL
+            )
+            # Also remove old format without emoji for backwards compatibility
             existing_content = re.sub(
                 r'\n## Development Analytics.*?(?=\n## |\Z)',
                 '',

@@ -1,3 +1,8 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+
 # Sensitive Configuration Files (contains tokens and API keys)
 Scripts/config/unified_data_config.json
 Scripts/config/github_config.env
@@ -40,6 +45,10 @@ cache/
 .obsidian/workspace-mobile.json
 .obsidian/hotkeys-mobile.json
 .obsidian/.obsidian/
+# Obsidian local state (personal workspace, open files, daily note folder)
+.obsidian/workspace.json
+.obsidian/app.json
+.obsidian/daily-notes.json
 
 # Keep template config file and allow *.txt files for notes
 !Scripts/config/unified_data_config.json.template

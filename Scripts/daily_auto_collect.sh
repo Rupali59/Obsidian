@@ -8,7 +8,7 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 OBSIDIAN_PATH="$(cd "$SCRIPT_DIR/.." && pwd)"
 CONFIG_PATH="$SCRIPT_DIR/config/unified_data_config.json"
-COLLECTOR_PATH="$SCRIPT_DIR/data_collectors/unified_data_collector.py"
+COLLECTOR_PATH="$SCRIPT_DIR/data_collectors/main.py"
 LOG_DIR="$SCRIPT_DIR/logs"
 LOG_FILE="$LOG_DIR/daily_auto_collect.log"
 
