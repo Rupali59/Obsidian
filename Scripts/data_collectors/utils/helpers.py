@@ -3,20 +3,33 @@ Helper utility functions
 """
 
 from typing import Dict
+from urllib.parse import urlparse
 
 
 def normalize_repo_identifier(raw_repo: str, default_username: str) -> str:
     """Convert various repo formats to owner/repo"""
     if not raw_repo:
         return ""
-    if 'github.com' in raw_repo:
-        # Expecting formats like https://github.com/owner/repo or owner/repo
-        parts = raw_repo.split('github.com/')[-1].strip('/')
-        # parts could contain extra path segments; keep first two
-        owner_repo = '/'.join(parts.split('/')[:2])
+
+    raw_repo = raw_repo.strip()
+
+    # Handle full GitHub URLs safely by parsing and validating the hostname
+    if raw_repo.startswith(("http://", "https://")):
+        parsed = urlparse(raw_repo)
+        host = parsed.hostname or ""
+        if host in ("github.com", "www.github.com"):
+            # Expecting formats like https://github.com/owner/repo
+            parts = parsed.path.lstrip("/").strip("/")
+            # parts could contain extra path segments; keep first two
+            owner_repo = "/".join(parts.split("/")[:2])
+            return owner_repo
+
+    if "/" in raw_repo:
+        # Already in owner/repo or owner/repo/extra form; keep first two segments
+        parts = raw_repo.strip("/").split("/")
+        owner_repo = "/".join(parts[:2])
         return owner_repo
-    if '/' in raw_repo:
-        return raw_repo
+
     # Just repo name; prefix username
     return f"{default_username}/{raw_repo}"
 
