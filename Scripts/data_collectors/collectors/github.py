@@ -12,6 +12,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from datetime import date, datetime
 from typing import Dict, List, Optional, Tuple
+from urllib.parse import urlparse
 
 from ..utils.config import setup_env, DOTENV_AVAILABLE
 from ..utils.helpers import normalize_repo_identifier
@@ -185,9 +186,14 @@ class GitHubCollector:
         
         # Normalize repository to owner/repo if a URL was provided
         owner_repo = repo
-        if 'github.com' in owner_repo:
-            owner_repo = owner_repo.split('github.com/')[-1].strip('/')
-            owner_repo = '/'.join(owner_repo.split('/')[:2])
+        parsed = urlparse(repo)
+        if parsed.netloc:
+            hostname = parsed.hostname or ""
+            if hostname in ("github.com", "www.github.com"):
+                # Extract owner/repo from the path component
+                path_parts = parsed.path.lstrip("/").split("/")
+                if len(path_parts) >= 2:
+                    owner_repo = "/".join(path_parts[:2])
 
         # Get all branches first
         if '/' in owner_repo:
