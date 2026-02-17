@@ -8,6 +8,9 @@ on:
       - 'Vault.md'
       - 'index.md'
 
+permissions:
+  contents: read
+
 jobs:
   notify-quartz:
     runs-on: ubuntu-latest
