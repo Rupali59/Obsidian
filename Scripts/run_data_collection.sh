@@ -55,10 +55,10 @@ def process_date(target_date):
         print(f"📆 Processing {target_date}")
         result = subprocess.run([
             "python3",
-            "$COLLECTOR_PATH",
+            "-m", "data_collectors.main",
             "--config", "$CONFIG_PATH",
             "--date", target_date.isoformat()
-        ], check=False, capture_output=True, text=True)
+        ], cwd="$OBSIDIAN_PATH/Scripts", check=False, capture_output=True, text=True)
         
         if result.returncode != 0:
             return (target_date, False, result.stderr)
@@ -95,16 +95,16 @@ PY
 # Parse command line arguments
 if [ $# -eq 0 ]; then
     echo "📅 Processing today (default)"
-    python3 "$COLLECTOR_PATH" --config "$CONFIG_PATH" --today
+    (cd "$OBSIDIAN_PATH/Scripts" && python3 -m data_collectors.main --config "$CONFIG_PATH" --today)
     
 elif [ "$1" = "yesterday" ]; then
     echo "📅 Processing yesterday"
     YESTERDAY=$(date -v-1d '+%Y-%m-%d' 2>/dev/null || date -d 'yesterday' '+%Y-%m-%d')
-    python3 "$COLLECTOR_PATH" --config "$CONFIG_PATH" --date "$YESTERDAY"
+    (cd "$OBSIDIAN_PATH/Scripts" && python3 -m data_collectors.main --config "$CONFIG_PATH" --date "$YESTERDAY")
     
 elif [ "$1" = "today" ]; then
     echo "📅 Processing today"
-    python3 "$COLLECTOR_PATH" --config "$CONFIG_PATH" --today
+    (cd "$OBSIDIAN_PATH/Scripts" && python3 -m data_collectors.main --config "$CONFIG_PATH" --today)
     
 elif [ "$1" = "october" ]; then
     echo "📅 Backfilling October 2025"
@@ -138,7 +138,7 @@ elif [ "$1" = "range" ]; then
     
 else
     echo "📅 Processing specific date: $1"
-    python3 "$COLLECTOR_PATH" --config "$CONFIG_PATH" --date "$1"
+    (cd "$OBSIDIAN_PATH/Scripts" && python3 -m data_collectors.main --config "$CONFIG_PATH" --date "$1")
 fi
 
 echo ""
