@@ -30,6 +30,17 @@ def get_project_description(repo_name: str) -> str:
         'WhatsApp-Plugin': 'WhatsApp plugin for Motherboard platform',
         'VipinKaushik': 'Vipin Kaushik project repository',
         'Utility-mb': 'Utility service with Motherboard integration',
+        'Mothership': 'Mothership platform',
+        'Rishta': 'Rishta project',
+        'Bhitti': 'Bhitti project',
+        'astro_stuff': 'Astrological utilities and chart processing',
+        'MIS': 'MIS project',
+        'myra': 'Myra project',
+        'himk-implementation': 'Himk implementation project',
+        'Cybernetics': 'Cybernetics project',
+        'Astroclarity': 'Astroclarity vedic platform',
+        'Astro_clarity': 'Astro Clarity AI assistant',
+        'motherboard-web': 'Motherboard Web project',
     }
     
     # Check for exact match
@@ -182,6 +193,77 @@ def generate_work_details(commits: List[Dict]) -> List[str]:
         work_details.append(f"- **{key}**: {desc}")
     
     return work_details[:10]  # Limit to 10 work details
+
+
+def generate_overview_content(github_data: Dict) -> str:
+    """Generate Daily Overview section with tags and summary"""
+    if not github_data:
+        return "**#concept/Maintenance**\n\n## 📊 Daily Overview\n\n**Total Activity:** 0 commits across 0 repositories | 0 pull requests | 0 issues\n\nNo development activity recorded.\n\n---\n\n"
+
+    repo_details = github_data.get('repository_details', {})
+    commits = github_data.get('commits', 0)
+    prs = github_data.get('prs', 0)
+    issues = github_data.get('issues', 0)
+
+    # Build project and concept tags
+    tags = []
+    repo_names = []
+    for repo_name, metrics in repo_details.items():
+        if repo_name == 'Rupali59':
+            continue
+        if metrics.get('commits', 0) > 0 or metrics.get('prs', 0) > 0 or metrics.get('issues', 0) > 0:
+            repo_names.append(repo_name)
+            tags.append(f"#project/{repo_name}")
+
+    # Add concept tags from focus areas
+    focus_concepts = set()
+    for repo_name, metrics in repo_details.items():
+        if repo_name == 'Rupali59':
+            continue
+        if metrics.get('commits', 0) > 0:
+            for commit in metrics.get('commit_details', []):
+                msg = commit.get('message', '').lower()
+                if any(kw in msg for kw in ['infrastructure', 'scaffold', 'config', 'setup']):
+                    focus_concepts.add('Infrastructure')
+                if any(kw in msg for kw in ['feat', 'feature', 'implement']):
+                    focus_concepts.add('Feature-Development')
+                if any(kw in msg for kw in ['fix', 'bug']):
+                    focus_concepts.add('Bug-Fixes')
+                if any(kw in msg for kw in ['chore', 'update', 'maintain', 'dependencies']):
+                    focus_concepts.add('Maintenance')
+                if any(kw in msg for kw in ['design', 'ui', 'ux', 'aria', 'accessibility']):
+                    focus_concepts.add('Design')
+    if not focus_concepts:
+        focus_concepts.add('Maintenance')
+    for concept in sorted(focus_concepts):
+        tags.append(f"#concept/{concept}")
+
+    repo_count = len(repo_names)
+    total_commits = sum(m.get('commits', 0) for m in repo_details.values() if m.get('commits', 0) > 0 or m.get('prs', 0) > 0 or m.get('issues', 0) > 0)
+
+    # Generate one-line summary
+    if commits == 0 and prs == 0 and issues == 0:
+        summary = "No development activity recorded."
+    else:
+        parts = []
+        for repo_name in repo_names[:3]:  # Limit to 3 repos
+            metrics = repo_details.get(repo_name, {})
+            commit_details = metrics.get('commit_details') or []
+            if commit_details:
+                first_msg = format_commit_as_work_detail(commit_details[0])[:50]
+                parts.append(f"{repo_name}: {first_msg}")
+            elif metrics.get('commits', 0) > 0:
+                parts.append(f"{repo_name}: {metrics['commits']} commits")
+        summary = "; ".join(parts) if parts else f"{total_commits} commits across {repo_count} repositories"
+
+    tags_line = "**" + (" ".join(tags) if tags else "#concept/Maintenance") + "**"
+
+    commit_word = "commit" if commits == 1 else "commits"
+    repo_word = "repository" if repo_count == 1 else "repositories"
+    pr_word = "pull request" if prs == 1 else "pull requests"
+    issue_word = "issue" if issues == 1 else "issues"
+
+    return f"{tags_line}\n\n## 📊 Daily Overview\n\n**Total Activity:** {commits} {commit_word} across {repo_count} {repo_word} | {prs} {pr_word} | {issues} {issue_word}\n\n{summary}\n\n---\n\n"
 
 
 class CalendarFormatter:

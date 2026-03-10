@@ -7,7 +7,7 @@ from datetime import date
 from pathlib import Path
 from typing import Dict, Optional
 
-from .formatter import CalendarFormatter
+from .formatter import CalendarFormatter, generate_overview_content
 
 
 class CalendarUpdater:
@@ -45,11 +45,25 @@ class CalendarUpdater:
                 existing_content = f.read()
             
             # Generate content sections
+            overview_content = generate_overview_content(github_data)
             github_content = self.formatter.format_github_content(github_data)
             datatable_content = self.formatter.create_datatable_content(github_data)
             
             # Remove any existing sections that we'll replace
-            # Remove existing sections in order: Protocol, GitHub Activity, Development Analytics
+            # Remove tags line (e.g. **#project/X #concept/Y**)
+            existing_content = re.sub(
+                r'\n\*\*[^*]*#(?:project|concept)/[^*]*\*\*\s*\n',
+                '\n',
+                existing_content
+            )
+            # Remove Daily Overview section (through the ---)
+            existing_content = re.sub(
+                r'\n## 📊 Daily Overview.*?---\s*\n',
+                '\n',
+                existing_content,
+                flags=re.DOTALL
+            )
+            # Remove existing sections: Protocol, GitHub Activity, Development Analytics
             existing_content = re.sub(
                 r'\n## 🔒 Containment & Failure Protocol.*?(?=\n## |\Z)',
                 '',
@@ -90,8 +104,8 @@ class CalendarUpdater:
                 flags=re.DOTALL
             )
             
-            # Combine all content (GitHub first, then Analytics)
-            sections = []
+            # Combine all content (Overview, GitHub, Analytics)
+            sections = [overview_content]
             if github_content:
                 sections.append(github_content)
             if datatable_content:
