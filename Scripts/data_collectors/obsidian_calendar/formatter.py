@@ -41,6 +41,8 @@ def get_project_description(repo_name: str) -> str:
         'Astroclarity': 'Astroclarity vedic platform',
         'Astro_clarity': 'Astro Clarity AI assistant',
         'motherboard-web': 'Motherboard Web project',
+        'motherboard-shared': 'Motherboard Shared project',
+        'motherboard-api': 'Motherboard Api project',
     }
     
     # Check for exact match
