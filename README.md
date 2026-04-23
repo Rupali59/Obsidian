@@ -20,10 +20,12 @@ Obsidian/
 │   ├── 2025/             # 2025 calendar entries
 │   └── 2026/             # 2026 calendar entries
 ├── Notes/                # General notes and knowledge base
-├── Scripts/              # Automation and data collection scripts
-│   ├── config/           # Configuration files
-│   ├── data_collectors/  # Data collection scripts
-│   └── logs/             # Script execution logs
+├── Scripts/              # Automation (see Scripts/LAYOUT.txt)
+│   ├── bash/             # Shell entrypoints (launchers, automation)
+│   ├── config/           # JSON + launchd plist
+│   ├── logs/             # Execution logs
+│   ├── python/           # Python package (`data_collectors`)
+│   └── tools/            # One-off maintenance scripts
 └── README.md            # This file
 ```
 
@@ -51,7 +53,7 @@ Obsidian/
 
 3. **Set up automation (macOS)**
    ```bash
-   bash Scripts/setup_automation.sh install
+   bash Scripts/bash/setup_automation.sh install
    ```
 
 ### Configuration
@@ -67,32 +69,32 @@ Edit `Scripts/config/unified_data_config.json`:
 
 ### Manual Data Collection
 
-Collect data for a specific date:
+Collect data for a specific date (from vault root; default config path is resolved automatically):
 ```bash
-python3 Scripts/data_collectors/main.py --config Scripts/config/unified_data_config.json --date 2026-01-10
+cd Scripts/python && python3 -m data_collectors.main --date 2026-01-10
 ```
 
 Or use the launcher:
 ```bash
-bash Scripts/run_data_collection.sh 2026-01-10
+bash Scripts/bash/run_data_collection.sh 2026-01-10
 ```
 
 Collect data for today:
 ```bash
-python3 Scripts/data_collectors/main.py --config Scripts/config/unified_data_config.json --today
+cd Scripts/python && python3 -m data_collectors.main --today
 ```
 
 Fetch commits in a date range:
 ```bash
-python3 Scripts/data_collectors/main.py --config Scripts/config/unified_data_config.json --commits-range 2026-01-01 2026-01-10
+cd Scripts/python && python3 -m data_collectors.main --commits-range 2026-01-01 2026-01-10
 ```
 
 ### Automated Collection
 
 The system can be configured to run automatically:
 
-- **macOS**: Uses launchd (configured via `setup_automation.sh`)
-- **Linux/Unix**: Use cron with `daily_auto_collect.sh`
+- **macOS**: Uses launchd (configured via `Scripts/bash/setup_automation.sh`)
+- **Linux/Unix**: Use cron with `Scripts/bash/daily_auto_collect.sh`
 
 ### Calendar Entry Format
 
@@ -121,28 +123,30 @@ Example entry format:
 
 ## 🛠️ Scripts
 
-- **`main.py`**: Main data collection script (data_collectors module)
-- **`daily_auto_collect.sh`**: Daily automated collection wrapper
-- **`setup_automation.sh`**: Automation setup and management
-- **`run_data_collection.sh`**: Manual data collection launcher
+See `Scripts/LAYOUT.txt` for the folder map. Short list:
+
+- **`python/data_collectors/main.py`**: Collector entry (run via `python3 -m data_collectors.main` from `Scripts/python/`)
+- **`bash/daily_auto_collect.sh`**: Daily automated collection (LaunchAgent target)
+- **`bash/setup_automation.sh`**: Automation setup and management
+- **`bash/run_data_collection.sh`**: Manual collection launcher
 
 ## 🔧 Automation Management
 
 ```bash
 # Install automation
-bash Scripts/setup_automation.sh install
+bash Scripts/bash/setup_automation.sh install
 
 # Check status
-bash Scripts/setup_automation.sh status
+bash Scripts/bash/setup_automation.sh status
 
 # Stop automation
-bash Scripts/setup_automation.sh stop
+bash Scripts/bash/setup_automation.sh stop
 
 # Start automation
-bash Scripts/setup_automation.sh start
+bash Scripts/bash/setup_automation.sh start
 
 # View logs
-bash Scripts/setup_automation.sh logs
+bash Scripts/bash/setup_automation.sh logs
 ```
 
 ## 📝 Calendar Structure
@@ -154,7 +158,7 @@ bash Scripts/setup_automation.sh logs
 
 ## 🔐 Security
 
-- GitHub tokens are stored in `Scripts/config/unified_data_config.json`
+- Prefer `GITHUB_API_TOKEN` or `GITHUB_TOKEN` in the environment; optional fallback in `Scripts/config/unified_data_config.json`
 - **Never commit** your actual config file with tokens
 - Use `.gitignore` to exclude sensitive files
 - The template file (`unified_data_config.json.template`) is safe to commit

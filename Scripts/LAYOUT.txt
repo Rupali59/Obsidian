@@ -1,0 +1,20 @@
+Scripts/ layout (vault automation)
+=================================
+
+bash/       Shell entrypoints only: run_data_collection.sh, daily_auto_collect.sh,
+            setup_automation.sh, collect_descending.sh. Invoke with
+            `bash Scripts/bash/<script>.sh` from the vault root.
+
+python/     Python package `data_collectors`. Run as:
+              cd Scripts/python && python3 -m data_collectors.main --today
+            CWD must be python/ so imports resolve.
+
+config/     unified_data_config.json (+ .template), com.obsidian.dailycollect.plist
+
+logs/       unified_data_collector.log, daily_auto_collect.log, launchd_*.log
+
+tools/      Maintenance scripts (e.g. prune_github_repos.py).
+
+Paths inside unified_data_config.json (screenshot_directory, logging.file) stay relative to the vault root (e.g. Scripts/logs/...).
+
+LaunchAgent: `bash Scripts/bash/setup_automation.sh install` writes paths into the plist and installs `com.obsidian.dailycollect`.

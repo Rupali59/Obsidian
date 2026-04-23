@@ -3,63 +3,21 @@
     "name": "Unified Data Collection Configuration",
     "version": "1.0.0",
     "description": "Configuration for GitHub data collection with Obsidian integration",
-    "last_updated": "2026-02-14",
-    "author": "Rupali"
+    "last_updated": "YYYY-MM-DD",
+    "author": "Your Name"
   },
   "github": {
     "enabled": true,
-    "api_token": "YOUR_GITHUB_TOKEN_HERE",
-    "_comment_api_token": "Can also be set via GITHUB_API_TOKEN or GITHUB_TOKEN environment variable",
+    "api_token": "",
+    "_comment_api_token": "Set GITHUB_API_TOKEN or GITHUB_TOKEN in the environment (do not commit tokens).",
     "username": "YOUR_GITHUB_USERNAME",
-    "_comment_username": "Can also be set via GITHUB_USERNAME environment variable",
+    "_comment_repositories": "Prune to active repos: python3 Scripts/tools/prune_github_repos.py (uses pushed_at, last 365 days, skips archived).",
     "repositories": [
-      "Rupali59/Rupali59",
-      "Rupali59/Obsidian",
-      "Rupali59/WorkTracker",
-      "Rupali59/Astro-Clarity-iOS",
-      "Rupali59/Jira_tracker",
-      "Rupali59/tathya-portfolio",
-      "Rupali59/Motherboard",
-      "Rupali59/Motherboard-server",
-      "Rupali59/Motherboard-billing-service",
-      "Rupali59/MotherBoard",
-      "Rupali59/motherboard-web",
-      "Rupali59/motherboard-infra",
-      "Rupali59/motherboard-api",
-      "Rupali59/motherboard-core",
-      "Rupali59/motherboard-shared",
-      "Rupali59/Email-Plugin",
-      "Rupali59/SMS-Plugin",
-      "Rupali59/WhatsApp-Plugin",
-      "Rupali59/VipinKaushik",
-      "Rupali59/Utility-mb",
-      "Rupali59/astro_stuff",
-      "Rupali59/Rishta",
-      "Rupali59/Bhitti",
-      "Rupali59/Mothership",
-      "Rupali59/MIS",
-      "Rupali59/myra",
-      "Rupali59/himk-implementation",
-      "Rupali59/Cybernetics",
-      "Rupali59/Astroclarity",
-      "Rupali59/Astro_clarity",
-      "Rupali59/LuckyChoudhary-mb",
-      "Rupali59/Manav-mb",
-      "Rupali59/Parikshit-mb",
-      "Rupali59/Pooja-mb",
-      "Rupali59/Ratika-mb",
-      "Rupali59/SSJK-mb",
-      "Rupali59/Shanky-mb",
-      "Rupali59/Sinma-mb",
-      "Rupali59/Stocks-mb",
-      "Rupali59/Tathya-mb",
-      "Rupali59/VipinKaushik-mb",
-      "Rupali59/Wani-mb",
-      "Rupali59/Youvan-mb"
+      "YOUR_GITHUB_USERNAME/your-repo"
     ],
     "data_points": [
       "commits",
-      "pull_requests", 
+      "pull_requests",
       "issues",
       "contributions",
       "repositories"
@@ -67,8 +25,8 @@
   },
   "obsidian": {
     "vault_path": "/path/to/your/obsidian/vault",
-    "_comment_vault_path": "Can also be set via OBSIDIAN_VAULT_PATH environment variable",
-    "calendar_structure": "Calendar/{year}/{month}/{day}-{month}-{year}.md",
+    "_comment_vault_path": "Optional: set OBSIDIAN_VAULT_PATH to override.",
+    "calendar_structure": "Calendar/{year}/{month_name}/{day:02d}-{month:02d}-{year}.md",
     "data_integration": {
       "github_section": "## GitHub Activity",
       "datatable_section": "## Development Analytics"
@@ -84,11 +42,17 @@
   "data_processing": {
     "date_range": {
       "default": "today",
-      "options": ["today", "yesterday", "last_7_days", "last_30_days", "custom"]
+      "options": [
+        "today",
+        "yesterday",
+        "last_7_days",
+        "last_30_days",
+        "custom"
+      ]
     },
     "output_formats": [
       "markdown_tables",
-      "datatables", 
+      "datatables",
       "screenshots",
       "summary_text"
     ],
@@ -97,16 +61,6 @@
       "schedule": "daily",
       "time": "18:00"
     }
-  },
-  "protocol_tracking": {
-    "enabled": true,
-    "description": "Tracks adherence to Containment & Failure Protocol in daily calendar entries",
-    "analysis_points": [
-      "early_warning_signals",
-      "protocol_violations",
-      "adherence_score",
-      "recommendations"
-    ]
   },
   "logging": {
     "level": "INFO",

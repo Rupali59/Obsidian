@@ -9,17 +9,17 @@
 	<key>KeepAlive</key>
 	<false />
 	<key>Label</key>
-	<string>/Users/rupali.b/Documents/GitHub/Motherboard/Obsidian/Scripts/daily_auto_collect.sh</string>
+	<string>com.obsidian.dailycollect</string>
 	<key>LaunchOnlyOnce</key>
 	<false />
 	<key>Program</key>
-	<string>/Users/rupali.b/Documents/GitHub/Motherboard/Obsidian/Scripts/daily_auto_collect.sh</string>
+	<string>/Users/rupali.b/Documents/GitHub/Tathya/Obsidian/Scripts/bash/daily_auto_collect.sh</string>
 	<key>RunAtLoad</key>
 	<false />
 	<key>StandardErrorPath</key>
-	<string>/Users/rupali.b/Documents/GitHub/Motherboard/Obsidian/Scripts/logs/launchd_stderr.log</string>
+	<string>/Users/rupali.b/Documents/GitHub/Tathya/Obsidian/Scripts/logs/launchd_stderr.log</string>
 	<key>StandardOutPath</key>
-	<string>/Users/rupali.b/Documents/GitHub/Motherboard/Obsidian/Scripts/logs/launchd_stdout.log</string>
+	<string>/Users/rupali.b/Documents/GitHub/Tathya/Obsidian/Scripts/logs/launchd_stdout.log</string>
 	<key>StartCalendarInterval</key>
 	<dict>
 		<key>Hour</key>
@@ -28,6 +28,6 @@
 		<integer>0</integer>
 	</dict>
 	<key>WorkingDirectory</key>
-	<string>/Users/rupali.b/Documents/GitHub/Motherboard/Obsidian</string>
+	<string>/Users/rupali.b/Documents/GitHub/Tathya/Obsidian</string>
 </dict>
 </plist>
