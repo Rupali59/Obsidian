@@ -1,0 +1,22 @@
+name: Notify WorkTracker of vault changes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Calendar/**'
+      - 'Notes/**'
+  workflow_dispatch:
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger WorkTracker vault-sync
+        env:
+          GH_TOKEN: ${{ secrets.WORKTRACKER_DISPATCH_PAT }}
+        run: |
+          gh api repos/Rupali59/WorkTracker/dispatches \
+            -f event_type=vault-updated \
+            -f 'client_payload[source_sha]=${{ github.sha }}' \
+            -f 'client_payload[source_ref]=${{ github.ref_name }}'
