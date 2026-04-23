@@ -10,6 +10,11 @@ This note explains how it works, where it is today, and where it's going.
 
 *Last verified: April 22, 2026*
 
+> [!private]
+> Vault-only test marker. If you can read this on rupali59.github.io/WorkTracker,
+> the StripPrivateCallouts plugin is broken. Reachable in Obsidian as a styled
+> callout block.
+
 ---
 
 ## What it does right now
