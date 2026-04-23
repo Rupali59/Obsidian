@@ -69,3 +69,6 @@ cache/
 
 # Keep the template
 !.env.example
+# Added by code-review-graph
+.code-review-graph/
+.cursor/hooks/state/
